@@ -1,0 +1,9 @@
+stages:
+  prepare:
+    cmd: python src/ml/data.py
+    deps:
+      - data/raw/creditcard.csv
+    outs:
+      - data/processed/train.parquet
+      - data/processed/test.parquet
+      - data/processed/reference.parquet

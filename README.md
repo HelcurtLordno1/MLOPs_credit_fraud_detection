@@ -1,0 +1,34 @@
+# Project MLOps Credit Fraud Detection
+
+## Team Roles
+- Person 1: Lead + Documentation + Streamlit bonus
+- Person 2: Data + DVC + SHAP bonus
+- Person 3: Modeling + MLflow + Optuna bonus
+- Person 4: CI/CD + Deployment + Cloud deployment bonus
+- Person 5: Monitoring + Alerts + Slack/email bonus
+- Person 6: Presentation + Video + Animated GIF bonus
+
+## Problem Definition
+- Use case: Real-time fraud detection for banks.
+- Motivation: Banks lose around $32B yearly to fraud.
+
+## Success Metrics
+Technical metrics:
+- AUPRC >= 0.85
+- Recall >= 0.92
+- Precision >= 0.80
+
+Business/operational metrics:
+- Latency < 50 ms
+- FPR < 5%
+- Drift alert < 5 minutes
+
+## Dataset
+- Source: https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud
+- File: `creditcard.csv`
+
+## Quick Start
+1. Install dependencies.
+2. Put `creditcard.csv` into `data/raw/`.
+3. Run `dvc init`.
+4. Run `dvc repro` to generate processed datasets.
