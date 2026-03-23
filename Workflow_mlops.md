@@ -67,7 +67,7 @@ Definition of "done" for final demo:
 Owner: Person 1
 
 Steps:
-1. Create GitHub repository: `group6-credit-fraud-mlops` (Public).
+1. Create GitHub repository: `MLOPs_credit_fraud_detection` (Public).
 2. Add initial files:
    - `README.md` (title + all 6 names + roles)
    - `.gitignore` (GitHub Python template)
@@ -76,8 +76,8 @@ Steps:
 4. Everyone clones and switches to setup branch:
 
 ```bash
-git clone https://github.com/YOURORG/group6-credit-fraud-mlops.git
-cd group6-credit-fraud-mlops
+git clone https://github.com/HelcurtLordno1/MLOPs_credit_fraud_detection.git
+cd MLOPs_credit_fraud_detection
 git checkout -b setup
 ```
 
