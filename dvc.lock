@@ -1,0 +1,22 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/ml/data.py
+    deps:
+    - path: data/raw/creditcard.csv
+      hash: md5
+      md5: e90efcb83d69faf99fcab8b0255024de
+      size: 150828752
+    outs:
+    - path: data/processed/reference.parquet
+      hash: md5
+      md5: f283e521c29e522378335355e081fda5
+      size: 2909381
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: e1cbb0434a622be73a1b086574338157
+      size: 16645623
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: d0f5d624740eeab19c3b1b415715a3b9
+      size: 61203961
