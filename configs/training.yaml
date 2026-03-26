@@ -1,0 +1,26 @@
+model:
+  type: LogisticRegression    # Week 1 baseline — swap to xgb in Week 2
+  class_weight: balanced
+
+  # Logistic Regression params (Person 3 — baseline)
+  logistic:
+    C: 1.0
+    max_iter: 1000
+    solver: lbfgs
+
+  # XGBoost params (Week 2 — Optuna-tuned, Person 3)
+  xgb:
+    n_estimators: 300
+    max_depth: 6
+    learning_rate: 0.05
+    scale_pos_weight: 577     # approx neg/pos ratio in dataset
+    eval_metric: aucpr
+
+preprocessing:
+  scaler: StandardScaler
+
+thresholds:
+  min_auc: 0.90
+  min_auprc: 0.85
+  min_recall: 0.92
+  min_precision: 0.80
