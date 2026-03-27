@@ -20,3 +20,8 @@ env/
 
 # Raw dataset files (track with DVC, not git)
 data/raw/*.csv
+
+# Local training artifacts
+model.joblib
+mlflow.db
+mlruns/
