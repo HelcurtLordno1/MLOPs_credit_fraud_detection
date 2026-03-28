@@ -1,9 +1,43 @@
 stages:
   prepare:
-    cmd: python src/ml/data.py
+    cmd: .\.venv\Scripts\python.exe -m codes.ml.data.prepare_data
     deps:
       - data/raw/creditcard.csv
+      - codes/ml/data/prepare_data.py
+      - codes/ml/common/paths.py
+      - configs/base.yaml
     outs:
       - data/processed/train.parquet
+      - data/processed/val.parquet
       - data/processed/test.parquet
       - data/processed/reference.parquet
+      - data/processed/current.parquet
+      - reports/data_quality_report.json
+      - reports/dataset_fingerprint.json
+
+  train:
+    cmd: .\.venv\Scripts\python.exe -m codes.ml.modeling.train_model
+    deps:
+      - codes/ml/modeling/train_model.py
+      - codes/ml/common/paths.py
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+      - data/processed/test.parquet
+      - configs/base.yaml
+      - configs/training.yaml
+      - configs/inference.yaml
+    outs:
+      - models/trained/latest.joblib
+      - reports/metrics/training_summary.json
+
+  evaluate:
+    cmd: .\.venv\Scripts\python.exe -m codes.ml.modeling.evaluate_model
+    deps:
+      - codes/ml/modeling/evaluate_model.py
+      - codes/ml/common/paths.py
+      - data/processed/test.parquet
+      - models/trained/latest.joblib
+      - configs/base.yaml
+      - configs/inference.yaml
+    outs:
+      - reports/metrics/test_metrics.json

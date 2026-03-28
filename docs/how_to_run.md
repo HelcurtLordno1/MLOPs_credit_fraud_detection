@@ -40,13 +40,16 @@ pip install -r requirements.txt
 - DVC tracks versions of `data/raw/creditcard.csv` and generated artifacts.
 - `dvc repro` runs pipeline stages from `dvc.yaml` and updates `dvc.lock`.
 
-Current DVC stage:
+Current DVC stages:
 - `prepare` stage in `dvc.yaml`
-- Runs: `python src/ml/data.py`
-- Produces:
-  - `data/processed/train.parquet`
-  - `data/processed/test.parquet`
-  - `data/processed/reference.parquet`
+  - Runs: `python -m codes.ml.data.prepare_data`
+  - Produces: `train.parquet`, `val.parquet`, `test.parquet`, `reference.parquet`, `current.parquet`
+- `train` stage in `dvc.yaml`
+  - Runs: `python -m codes.ml.modeling.train_model`
+  - Produces: `models/trained/latest.joblib`, `reports/metrics/training_summary.json`
+- `evaluate` stage in `dvc.yaml`
+  - Runs: `python -m codes.ml.modeling.evaluate_model`
+  - Produces: `reports/metrics/test_metrics.json`
 
 ### 4.2 Run DVC pipeline
 
@@ -76,7 +79,8 @@ python -m src.ml.train
 ```
 
 Expected outputs:
-- `model.joblib`
+- `models/trained/latest.joblib`
+- `model.joblib` (compatibility copy)
 - New run under MLflow experiment `credit-fraud`
 - Console metrics (AUC-ROC, AUPRC, Recall, Precision)
 
@@ -103,7 +107,7 @@ python -m pytest -v
 ```
 
 Current expected result:
-- 1 passing test in `tests/test_model.py`
+- tests check config presence, data target validity, and prediction-score range (if model exists)
 
 Optional but recommended (log test results into MLflow UI):
 

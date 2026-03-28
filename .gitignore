@@ -23,5 +23,6 @@ data/raw/*.csv
 
 # Local training artifacts
 model.joblib
+models/trained/*.joblib
 mlflow.db
 mlruns/

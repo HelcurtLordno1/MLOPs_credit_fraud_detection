@@ -1,22 +1,126 @@
 schema: '2.0'
 stages:
   prepare:
-    cmd: python src/ml/data.py
+    cmd: .\.venv\Scripts\python.exe -m codes.ml.data.prepare_data
     deps:
+    - path: codes/ml/common/paths.py
+      hash: md5
+      md5: 481870778eb39a4c77135947848a70fa
+      size: 546
+    - path: codes/ml/data/prepare_data.py
+      hash: md5
+      md5: f860a62e92596d21f38c6d0830d71a47
+      size: 5512
+    - path: configs/base.yaml
+      hash: md5
+      md5: 524619df99a98fa9bcba880915bdbfd0
+      size: 212
     - path: data/raw/creditcard.csv
       hash: md5
       md5: e90efcb83d69faf99fcab8b0255024de
       size: 150828752
     outs:
+    - path: data/processed/current.parquet
+      hash: md5
+      md5: 5fffbcaad747a7ff58b11a2a5746f6f8
+      size: 2842886
     - path: data/processed/reference.parquet
       hash: md5
-      md5: a95429b2106ed1ecc1e7d8206981c1dc
-      size: 2909381
+      md5: e26828b75f2253b958aa6a36514fa387
+      size: 2842198
     - path: data/processed/test.parquet
       hash: md5
-      md5: 7b69b5bfea777c9401c168ffa6be9cee
-      size: 16717820
+      md5: d69db4b4dca1e2f1d25cd9a25dd1028a
+      size: 16206736
     - path: data/processed/train.parquet
       hash: md5
-      md5: 74319f2c041c5492a53aecd618d212b2
-      size: 61896529
+      md5: 8aa36599d2594c236a2ecd53c657b485
+      size: 46655677
+    - path: data/processed/val.parquet
+      hash: md5
+      md5: ac87ab01c8e5d2735b63a31f758db5b2
+      size: 16216189
+    - path: reports/data_quality_report.json
+      hash: md5
+      md5: cdd686d9934259af5bceb1ee70a96df7
+      size: 939
+    - path: reports/dataset_fingerprint.json
+      hash: md5
+      md5: 31e8837d18c8405bf0995a2dea34e3eb
+      size: 218
+  train:
+    cmd: .\.venv\Scripts\python.exe -m codes.ml.modeling.train_model
+    deps:
+    - path: codes/ml/common/paths.py
+      hash: md5
+      md5: 481870778eb39a4c77135947848a70fa
+      size: 546
+    - path: codes/ml/modeling/train_model.py
+      hash: md5
+      md5: 4451ca4f42df51512cb04089773e639d
+      size: 19598
+    - path: configs/base.yaml
+      hash: md5
+      md5: 524619df99a98fa9bcba880915bdbfd0
+      size: 212
+    - path: configs/inference.yaml
+      hash: md5
+      md5: c5bd887dd837a9570e2e9745365f99ee
+      size: 365
+    - path: configs/training.yaml
+      hash: md5
+      md5: ae173cbdb25326d385b1ce4aa2440a0b
+      size: 456
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: d69db4b4dca1e2f1d25cd9a25dd1028a
+      size: 16206736
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: 8aa36599d2594c236a2ecd53c657b485
+      size: 46655677
+    - path: data/processed/val.parquet
+      hash: md5
+      md5: ac87ab01c8e5d2735b63a31f758db5b2
+      size: 16216189
+    outs:
+    - path: models/trained/latest.joblib
+      hash: md5
+      md5: cdfd18501013b04f4246913fc24b76f4
+      size: 4853954
+    - path: reports/metrics/training_summary.json
+      hash: md5
+      md5: 7615988b580466f58dae8f65ac0f41c6
+      size: 2402
+  evaluate:
+    cmd: .\.venv\Scripts\python.exe -m codes.ml.modeling.evaluate_model
+    deps:
+    - path: codes/ml/common/paths.py
+      hash: md5
+      md5: 481870778eb39a4c77135947848a70fa
+      size: 546
+    - path: codes/ml/modeling/evaluate_model.py
+      hash: md5
+      md5: 0e7366920bf167154886534edc8eec31
+      size: 2934
+    - path: configs/base.yaml
+      hash: md5
+      md5: 524619df99a98fa9bcba880915bdbfd0
+      size: 212
+    - path: configs/inference.yaml
+      hash: md5
+      md5: c5bd887dd837a9570e2e9745365f99ee
+      size: 365
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: d69db4b4dca1e2f1d25cd9a25dd1028a
+      size: 16206736
+    - path: models/trained/latest.joblib
+      hash: md5
+      md5: cdfd18501013b04f4246913fc24b76f4
+      size: 4853954
+    outs:
+    - path: reports/metrics/test_metrics.json
+      hash: md5
+      md5: 45e48361127038f0f0a21aeb6dea927f
+      size: 416

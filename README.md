@@ -31,8 +31,8 @@ Business/operational metrics:
 1. Install dependencies.
 2. Put `creditcard.csv` into `data/raw/`.
 3. Run `dvc init`.
-4. Run `dvc repro` to generate processed datasets.
-5. Run `python -m src.ml.train` to train the baseline model.
+4. Run `dvc repro` to run full data -> train -> evaluate pipeline.
+5. Run `python -m src.ml.train` to train baseline + threshold-tuned models.
 6. Run `mlflow ui` and open http://127.0.0.1:5000 to inspect runs.
 
 ---
@@ -40,12 +40,16 @@ Business/operational metrics:
 ## Modeling *(Person 3 - Week 1, Day 4-5)*
 
 ### Overview
-Current baseline uses Logistic Regression with `class_weight=balanced` and logs runs to MLflow.
+Current training now includes a simple baseline model (`baseline_logistic`) plus tuned candidates (Logistic Regression and Random Forest). The pipeline tunes operating threshold on validation data and logs full metrics to MLflow.
 
 ### Training Script
 ```bash
 python -m src.ml.train
 ```
+
+This command logs:
+- `week1-baseline-logreg` (baseline reference run)
+- `improved-threshold-tuned-models` (main optimized run)
 
 Config file: `configs/training.yaml`
 
@@ -59,8 +63,22 @@ mlflow ui --host 127.0.0.1 --port 5000
 ```
 
 ### Artifacts
-- Trained model: `model.joblib`
+- Primary model artifact: `models/trained/latest.joblib`
+- Compatibility artifact: `model.joblib`
+- Baseline artifact: `models/trained/baseline_logistic_*.joblib`
+- Metrics reports: `reports/metrics/*.json`
 - MLflow run metadata: `mlruns/`
+
+### Baseline Registration (Person 3)
+Register the latest baseline run into MLflow Registry:
+
+```bash
+python scripts/register_baseline_model.py
+```
+
+Registered model:
+- Name: `credit-fraud-baseline`
+- Alias: `baseline`
 
 ## Reproducibility *(Week 1, Day 6-7)*
 
