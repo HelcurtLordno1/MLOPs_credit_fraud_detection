@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .[dev]
+
+      - name: Lint
+        run: |
+          ruff check .
+          mypy src
+
+      - name: Create smoke dataset
+        run: python scripts/generate_synthetic_dataset.py --output data/raw/paysim_fraud.zip --steps 30 --rows-per-step 10
+
+      - name: Smoke pipeline
+        run: |
+          python -m fraud_detection.cli prepare
+          python -m fraud_detection.cli train --sample-rows 400
+          python -m fraud_detection.cli evaluate
+          python -m fraud_detection.cli monitor
+          python -m fraud_detection.cli promote
+
+      - name: Test suite
+        run: pytest -q
+
+      - name: Docker build validation
+        run: |
+          docker build -t fraud-api-ci -f Dockerfile .
+          docker build -t fraud-streamlit-ci -f streamlit_app/Dockerfile .
+          docker build -t fraud-mlflow-ci -f deployment/mlflow/Dockerfile .

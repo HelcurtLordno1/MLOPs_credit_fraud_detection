@@ -1,0 +1,83 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fraud-detection-mlops"
+version = "0.1.0"
+description = "End-to-end MLOps project for PaySim fraud detection"
+readme = "README.md"
+requires-python = ">=3.9,<3.13"
+license = { text = "MIT" }
+authors = [
+  { name = "OpenAI Codex" }
+]
+dependencies = [
+  "fastapi>=0.115.0",
+  "httpx>=0.28.0",
+  "joblib>=1.4.0",
+  "lightgbm>=4.5.0",
+  "matplotlib>=3.8.0",
+  "mlflow>=2.20.0",
+  "numpy>=1.26.0",
+  "optuna>=4.2.0",
+  "pandas>=2.2.0",
+  "pandera[pandas]>=0.22.0",
+  "prometheus-client>=0.21.0",
+  "pyarrow>=18.0.0",
+  "pydantic>=2.10.0",
+  "python-dotenv>=1.0.0",
+  "python-multipart>=0.0.9",
+  "pyyaml>=6.0.0",
+  "requests>=2.32.0",
+  "scikit-learn==1.6.1",
+  "streamlit>=1.44.0",
+  "uvicorn[standard]>=0.34.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "dvc[gdrive]>=3.59.0",
+  "mypy>=1.15.0",
+  "pandas-stubs>=2.2.2",
+  "pre-commit>=4.1.0",
+  "pytest>=8.3.0",
+  "pytest-cov>=6.0.0",
+  "ruff>=0.11.0",
+  "types-PyYAML>=6.0.12",
+  "types-requests>=2.32.0",
+]
+
+[project.scripts]
+fraud-cli = "fraud_detection.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "C4"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_unused_configs = true
+warn_unused_ignores = true
+ignore_missing_imports = true
+disallow_untyped_defs = false
+check_untyped_defs = false
+strict_optional = true
+plugins = []
+exclude = ["tests/fixtures"]

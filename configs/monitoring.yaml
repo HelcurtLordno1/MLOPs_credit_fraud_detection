@@ -1,0 +1,9 @@
+monitoring:
+  reference_path: data/processed/reference.parquet
+  current_path: data/processed/current.parquet
+  report_path: reports/drift/drift_report.json
+  psi_warn_threshold: 0.10
+  psi_alert_threshold: 0.20
+  categorical_diff_warn_threshold: 0.10
+  categorical_diff_alert_threshold: 0.20
+

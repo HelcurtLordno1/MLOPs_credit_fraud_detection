@@ -1,0 +1,6 @@
+outs:
+  - md5: a898ef24f1186bc853fb1d51740a835c
+    size: 186385561
+    hash: md5
+    path: data/raw/paysim_fraud.zip
+

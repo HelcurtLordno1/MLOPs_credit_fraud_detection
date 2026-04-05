@@ -1,0 +1,67 @@
+stages:
+  prepare:
+    cmd: python -m fraud_detection.cli prepare
+    deps:
+      - data/raw/paysim_fraud.zip
+      - configs/data.yaml
+      - src/fraud_detection/data/pipeline.py
+      - src/fraud_detection/data/schema.py
+      - src/fraud_detection/utils/paths.py
+    outs:
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+      - data/processed/test.parquet
+      - data/processed/reference.parquet
+      - data/processed/current.parquet
+      - reports/metrics/data_quality.json
+      - reports/metrics/split_summary.json
+
+  train:
+    cmd: python -m fraud_detection.cli train
+    deps:
+      - configs/data.yaml
+      - configs/train.yaml
+      - configs/serve.yaml
+      - src/fraud_detection/data/features.py
+      - src/fraud_detection/modeling/train.py
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+      - data/processed/test.parquet
+    outs:
+      - models/trained/model_bundle.joblib
+      - models/registry/candidate.json
+      - reports/metrics/train_metrics.json
+
+  evaluate:
+    cmd: python -m fraud_detection.cli evaluate
+    deps:
+      - configs/serve.yaml
+      - src/fraud_detection/modeling/evaluate.py
+      - data/processed/test.parquet
+      - models/trained/model_bundle.joblib
+    outs:
+      - reports/metrics/test_metrics.json
+      - reports/figures/pr_curve.png
+
+  monitor:
+    cmd: python -m fraud_detection.cli monitor
+    deps:
+      - configs/monitoring.yaml
+      - src/fraud_detection/monitoring/drift.py
+      - data/processed/reference.parquet
+      - data/processed/current.parquet
+    outs:
+      - reports/drift/drift_report.json
+
+  promote:
+    cmd: python -m fraud_detection.cli promote
+    deps:
+      - configs/train.yaml
+      - configs/serve.yaml
+      - reports/metrics/train_metrics.json
+      - reports/drift/drift_report.json
+      - src/fraud_detection/monitoring/promotion.py
+    outs:
+      - models/registry/champion.json
+      - models/registry/last_promotion.json
+

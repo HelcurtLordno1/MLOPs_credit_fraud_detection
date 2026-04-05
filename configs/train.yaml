@@ -1,0 +1,43 @@
+experiment:
+  name: fraud-detector
+  tracking_uri: ./mlruns
+  registry_uri: ./mlruns
+  registered_model_name: fraud-detector
+
+models:
+  baseline: logistic_regression
+  candidates:
+    - logistic_regression
+    - lightgbm
+  logistic_regression:
+    C: 1.0
+    max_iter: 1200
+    class_weight: balanced
+  lightgbm:
+    n_estimators: 400
+    learning_rate: 0.05
+    num_leaves: 64
+    subsample: 0.9
+    colsample_bytree: 0.9
+    reg_alpha: 0.0
+    reg_lambda: 0.0
+    min_child_samples: 30
+  optuna:
+    enabled: true
+    n_trials: 12
+    timeout_seconds: 600
+
+selection:
+  primary_metric: auprc
+
+threshold:
+  policy: recall_first
+  min_precision: 0.20
+  max_fpr: 0.03
+  fallback_threshold: 0.50
+
+promotion:
+  min_auprc_delta: 0.002
+  min_recall: 0.75
+  max_fpr: 0.03
+

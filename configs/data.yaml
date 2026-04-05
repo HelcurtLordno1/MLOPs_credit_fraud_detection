@@ -1,0 +1,25 @@
+project:
+  name: fraud-detector
+  seed: 42
+
+data:
+  raw_path: data/raw/paysim_fraud.zip
+  raw_csv_name: PS_20174392719_1491204439457_log.csv
+  processed_dir: data/processed
+  monitoring_dir: data/monitoring
+  reports_dir: reports/metrics
+  target_column: isFraud
+  dropped_columns:
+    - isFlaggedFraud
+  sample_rows: null
+  split:
+    train_ratio: 0.70
+    val_ratio: 0.15
+    test_ratio: 0.15
+  allowed_transaction_types:
+    - PAYMENT
+    - TRANSFER
+    - CASH_OUT
+    - DEBIT
+    - CASH_IN
+
