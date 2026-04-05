@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import zipfile
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pandas as pd
 
@@ -40,9 +40,18 @@ def split_by_step(
     val_steps = set(ordered_steps[train_end:val_end])
     test_steps = set(ordered_steps[val_end:])
 
-    train_df = frame.loc[frame["step"].isin(train_steps)].reset_index(drop=True)
-    val_df = frame.loc[frame["step"].isin(val_steps)].reset_index(drop=True)
-    test_df = frame.loc[frame["step"].isin(test_steps)].reset_index(drop=True)
+    train_df = cast(
+        pd.DataFrame,
+        frame.loc[frame["step"].isin(train_steps)].reset_index(drop=True),
+    )
+    val_df = cast(
+        pd.DataFrame,
+        frame.loc[frame["step"].isin(val_steps)].reset_index(drop=True),
+    )
+    test_df = cast(
+        pd.DataFrame,
+        frame.loc[frame["step"].isin(test_steps)].reset_index(drop=True),
+    )
 
     if train_df.empty or val_df.empty or test_df.empty:
         raise ValueError("Temporal split produced an empty dataset split")

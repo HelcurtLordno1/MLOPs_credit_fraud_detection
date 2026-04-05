@@ -4,7 +4,7 @@ import json
 import platform
 from copy import deepcopy
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, cast
 
 import joblib
 import numpy as np
@@ -292,7 +292,10 @@ def _limit_dataset_preserve_positives(
     negatives = frame.loc[frame[target_column] == 0]
     remaining = max(sample_rows - len(positives), 0)
     if remaining == 0:
-        return positives.sample(min(len(positives), sample_rows), random_state=seed)
+        return cast(
+            pd.DataFrame,
+            positives.sample(min(len(positives), sample_rows), random_state=seed),
+        )
 
     sampled_negatives = negatives.sample(min(len(negatives), remaining), random_state=seed)
     limited = pd.concat([positives, sampled_negatives], ignore_index=True)
@@ -328,11 +331,11 @@ def train_models(sample_rows: int | None = None) -> None:
             test_df, max(100, sample_rows // 5), target_column, seed
         )
 
-    X_train = train_df[RAW_FEATURE_COLUMNS]
+    X_train = cast(pd.DataFrame, train_df.loc[:, RAW_FEATURE_COLUMNS])
     y_train = train_df[target_column]
-    X_val = val_df[RAW_FEATURE_COLUMNS]
+    X_val = cast(pd.DataFrame, val_df.loc[:, RAW_FEATURE_COLUMNS])
     y_val = val_df[target_column]
-    X_test = test_df[RAW_FEATURE_COLUMNS]
+    X_test = cast(pd.DataFrame, test_df.loc[:, RAW_FEATURE_COLUMNS])
     y_test = test_df[target_column]
 
     negatives = max(int((y_train == 0).sum()), 1)

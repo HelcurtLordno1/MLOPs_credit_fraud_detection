@@ -4,7 +4,7 @@ import json
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import joblib
 import pandas as pd
@@ -68,7 +68,7 @@ def predict_records(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     missing_columns = [column for column in RAW_FEATURE_COLUMNS if column not in frame.columns]
     if missing_columns:
         raise ValueError(f"Missing required columns: {missing_columns}")
-    frame = frame[RAW_FEATURE_COLUMNS]
+    frame = cast(pd.DataFrame, frame.loc[:, RAW_FEATURE_COLUMNS])
     probabilities = bundle["pipeline"].predict_proba(frame)[:, 1]
     threshold = float(bundle["threshold"])
     metadata = bundle.get("metadata", {})

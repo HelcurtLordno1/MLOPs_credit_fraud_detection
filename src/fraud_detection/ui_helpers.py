@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import io
 import json
-from typing import Any
+from typing import Any, cast
 
 import pandas as pd
 
@@ -29,7 +29,7 @@ def parse_batch_csv(uploaded_bytes: bytes) -> pd.DataFrame:
     missing = [column for column in RAW_FEATURE_COLUMNS if column not in frame.columns]
     if missing:
         raise ValueError(f"Uploaded CSV is missing required columns: {missing}")
-    return frame[RAW_FEATURE_COLUMNS]
+    return cast(pd.DataFrame, frame.loc[:, RAW_FEATURE_COLUMNS])
 
 
 def load_local_status() -> dict[str, Any]:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from dataclasses import dataclass
+from typing import cast
 
 import numpy as np
 import pandas as pd
@@ -76,8 +77,14 @@ class FraudFeatureBuilder(BaseEstimator, TransformerMixin):
 
     def fit(self, X: pd.DataFrame, y: Iterable[int] | None = None) -> FraudFeatureBuilder:
         frame = self._coerce_frame(X)
-        self.origin_counts_ = frame["nameOrig"].value_counts().to_dict()
-        self.destination_counts_ = frame["nameDest"].value_counts().to_dict()
+        self.origin_counts_ = {
+            str(key): int(value)
+            for key, value in frame["nameOrig"].value_counts().to_dict().items()
+        }
+        self.destination_counts_ = {
+            str(key): int(value)
+            for key, value in frame["nameDest"].value_counts().to_dict().items()
+        }
         return self
 
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
@@ -119,14 +126,15 @@ class FraudFeatureBuilder(BaseEstimator, TransformerMixin):
         engineered["orig_seen_before"] = (engineered["orig_txn_count"] > 0).astype(float)
         engineered["dest_seen_before"] = (engineered["dest_txn_count"] > 0).astype(float)
 
-        return engineered[CATEGORICAL_ENGINEERED_COLUMNS + NUMERIC_ENGINEERED_COLUMNS]
+        ordered_columns = CATEGORICAL_ENGINEERED_COLUMNS + NUMERIC_ENGINEERED_COLUMNS
+        return cast(pd.DataFrame, engineered.loc[:, ordered_columns])
 
     def _coerce_frame(self, X: pd.DataFrame) -> pd.DataFrame:
         frame = X.copy()
         missing_columns = [column for column in RAW_FEATURE_COLUMNS if column not in frame.columns]
         if missing_columns:
             raise ValueError(f"Missing required feature columns: {missing_columns}")
-        return frame[RAW_FEATURE_COLUMNS]
+        return cast(pd.DataFrame, frame.loc[:, RAW_FEATURE_COLUMNS])
 
 
 def build_preprocessor(scale_numeric: bool) -> ColumnTransformer:
