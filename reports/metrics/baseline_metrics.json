@@ -49,10 +49,10 @@
       "V28",
       "Amount"
     ],
-    "model_path": "models\\trained\\baseline_logistic_20260328_132403.joblib",
-    "selected_at": "2026-03-28T13:24:03.670769+00:00"
+    "model_path": "models\\trained\\baseline_logistic_20260408_160214.joblib",
+    "selected_at": "2026-04-08T16:02:14.582571+00:00"
   },
-  "tracking_uri": "sqlite:///D:/Desktop_informations/SGK n\u0103m 3/SGK k\u00ec 2 n\u0103m 3/MLOPs/Project_mlops_credit_fraud_detection/mlflow.db",
-  "run_id": "9555d568f2e4491e9791ac499505f05f",
+  "tracking_uri": "sqlite:///C:/Users/duong/Downloads/mlops/MLOPs_credit_fraud_detection/mlflow.db",
+  "run_id": "309030598d854e0eb49dbca6998d814f",
   "mlflow_enabled": true
 }

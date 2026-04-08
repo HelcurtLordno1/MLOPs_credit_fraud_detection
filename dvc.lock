@@ -46,8 +46,8 @@ stages:
       size: 939
     - path: reports/dataset_fingerprint.json
       hash: md5
-      md5: 31e8837d18c8405bf0995a2dea34e3eb
-      size: 218
+      md5: 6d98c27c08f42232f3801aa20385cf8a
+      size: 171
   train:
     cmd: .\.venv\Scripts\python.exe -m codes.ml.modeling.train_model
     deps:
@@ -65,7 +65,7 @@ stages:
       size: 212
     - path: configs/inference.yaml
       hash: md5
-      md5: c5bd887dd837a9570e2e9745365f99ee
+      md5: 00f747d13222a9947c489146e6a27297
       size: 365
     - path: configs/training.yaml
       hash: md5
@@ -86,12 +86,12 @@ stages:
     outs:
     - path: models/trained/latest.joblib
       hash: md5
-      md5: cdfd18501013b04f4246913fc24b76f4
+      md5: ef19ff1e089d41641c5831883569ab15
       size: 4853954
     - path: reports/metrics/training_summary.json
       hash: md5
-      md5: 7615988b580466f58dae8f65ac0f41c6
-      size: 2402
+      md5: ed588a72eb1d1b69a4c5608bb908c9cd
+      size: 2355
   evaluate:
     cmd: .\.venv\Scripts\python.exe -m codes.ml.modeling.evaluate_model
     deps:
@@ -109,7 +109,7 @@ stages:
       size: 212
     - path: configs/inference.yaml
       hash: md5
-      md5: c5bd887dd837a9570e2e9745365f99ee
+      md5: 00f747d13222a9947c489146e6a27297
       size: 365
     - path: data/processed/test.parquet
       hash: md5
@@ -117,7 +117,7 @@ stages:
       size: 16206736
     - path: models/trained/latest.joblib
       hash: md5
-      md5: cdfd18501013b04f4246913fc24b76f4
+      md5: ef19ff1e089d41641c5831883569ab15
       size: 4853954
     outs:
     - path: reports/metrics/test_metrics.json
