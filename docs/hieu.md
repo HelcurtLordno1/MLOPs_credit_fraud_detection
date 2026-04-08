@@ -1,6 +1,5 @@
-# 🚀 Deployment & CI/CD Guide (Role 4)
+# Deployment & CI/CD Guide (Hieu)
 
-Tài liệu này hướng dẫn cách vận hành, deploy và test toàn hệ thống MLOps Credit Fraud Detection. Các nội dung trong này nhắm trực tiếp vào phần việc của **Person 4 (CI/CD and Deployment)**.
 
 ## 🏗️ 1. Cấu trúc Triển khai (Deployment Architecture)
 Phần triển khai được đóng gói bằng **Docker Compose** bao gồm 4 services chạy song song trên cùng 1 network ảo (`fraud-net`):
@@ -67,5 +66,3 @@ Hệ thống CI tự động được thiết lập thông qua Github Actions (`
 1. Chạy **Flake8** để check Linter.
 2. Tiêm **Pytest** chạy kịch bản thử nghiệm API.
 3. Chạy thử quy trình **Docker Build** xem Dockerfile có lỗi không.
-
-> *Người thực hiện: **Person 4 (Hieu)***
