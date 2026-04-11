@@ -1,1 +1,1 @@
-"""Data package."""
+"""Simplified data package."""

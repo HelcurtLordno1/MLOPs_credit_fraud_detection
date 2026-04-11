@@ -1,263 +1,298 @@
-# Fraud Detection MLOps
+# Fraud Detection Dataset Prep
 
-End-to-end fraud detection project for the PaySim credit transaction dataset. This repository was built from scratch in `E:\MLops\fraud-detection` and includes data preparation, model training, evaluation, promotion logic, API serving, a Streamlit operations UI, Docker Compose services, MLflow tracking, DVC, and GitHub Actions.
+This repository is now a simplified fraud-data preparation project.
 
-## What this project contains
+The current workflow does one main job:
 
-- Temporal data validation and splitting with Pandera
-- Shared train/serve feature engineering
-- Logistic regression baseline and LightGBM candidate
-- Optuna tuning for LightGBM
-- AUPRC-based model selection
-- Recall-first threshold tuning with FPR and precision guardrails
-- MLflow experiment tracking and registry hooks
-- FastAPI prediction service with Prometheus metrics
-- Streamlit dashboard for prediction, drift, and training status
-- DVC pipeline with Google Drive remote storage
-- GitHub Actions for CI, retraining, and image publishing
+- read `fraudTrain.csv` and `fraudTest.csv`
+- validate their columns and values
+- write cleaned copies into `data/processed/`
+- write a dataset summary into `reports/metrics/`
 
-## Prerequisites
+The older training, API, monitoring, and promotion modules were intentionally reduced and are no longer the active workflow.
 
-Before running anything locally, make sure the machine has:
+## What To Do After Downloading This Folder
 
-- Python `3.11` recommended
-- `pip`
-- `git`
-- `docker` and `docker compose`
-- `dvc` with Google Drive support, installed through `pip install -e .[dev]`
+If you download or clone this project, do this first:
 
-## Project setup
+1. Open the project root folder.
+2. Make sure these two dataset files exist in the root of the project:
+   - `fraudTrain.csv`
+   - `fraudTest.csv`
+3. If they are missing, copy them into the project root manually.
+4. Create a virtual environment and install dependencies.
+5. Run the `prepare` command.
 
-1. Clone the repository and move into it.
+Expected root-level layout before running:
 
-```bash
+```text
+fraud-detection/
+|-- fraudTrain.csv
+|-- fraudTest.csv
+|-- README.md
+|-- pyproject.toml
+|-- dvc.yaml
+|-- configs/
+|-- data/
+|-- src/
+```
+
+If `fraudTrain.csv` and `fraudTest.csv` are not present in the project root, the CLI will fail because it reads those exact files by default.
+
+## Setup
+
+### 1. Clone or download the project
+
+```powershell
 git clone <your-repo-url>
 cd fraud-detection
 ```
 
-2. Create and activate a virtual environment.
+### 2. Create a virtual environment
 
-```bash
+```powershell
 python -m venv .venv
 .venv\Scripts\activate
 ```
 
-3. Install the project and development dependencies.
+### 3. Install dependencies
 
-```bash
+```powershell
 pip install --upgrade pip
 pip install -e .[dev]
 ```
 
-4. Copy the example environment file if you want to customize ports or local service settings.
+## How To Get The Data
 
-```bash
-copy .env.example .env
-```
+This project now expects local CSV files, not the old zip-based PaySim input.
 
-## Dataset and DVC
+Put these files in the project root:
 
-The raw dataset is expected at:
+- `fraudTrain.csv`
+- `fraudTest.csv`
 
-```text
-data/raw/paysim_fraud.zip
-```
-
-You have two options:
-
-1. Pull it from DVC:
-
-```bash
-dvc pull data/raw/paysim_fraud.zip.dvc
-```
-
-2. Or place the dataset archive manually at `data/raw/paysim_fraud.zip`.
-
-### Google Drive remote
-
-The configured DVC remote is:
+That means the files should sit beside `README.md` and `pyproject.toml`, like this:
 
 ```text
-gdrive://1FV_0iHdu6jZiXNKGc1ltYsWPLu-L15Mh
+fraud-detection/
+|-- fraudTrain.csv
+|-- fraudTest.csv
+|-- README.md
+|-- pyproject.toml
 ```
 
-For local development:
+After that, run:
 
-- `dvc pull` can use the standard browser-based Google Drive login flow.
-- If your current machine already has working DVC Google Drive auth, nothing else is required.
-
-For automation:
-
-- `GDRIVE_CREDENTIALS_DATA` can be provided as the full service-account JSON string.
-- The shared Drive folder must be accessible to that service account.
-- If `GDRIVE_CREDENTIALS_DATA` is not provided, the retrain workflow assumes the self-hosted runner already has valid Google Drive auth configured.
-
-## Run the pipeline locally
-
-### Option 1: step by step
-
-Run each stage explicitly:
-
-```bash
+```powershell
+$env:PYTHONPATH='src'
+python -m fraud_detection.cli paths
 python -m fraud_detection.cli prepare
-python -m fraud_detection.cli train
-python -m fraud_detection.cli evaluate
-python -m fraud_detection.cli monitor
-python -m fraud_detection.cli promote
 ```
 
-What each command does:
+What those commands do:
 
-- `prepare`: validates the raw dataset, engineers split-ready data, and writes train/validation/test/reference/current parquet files
-- `train`: trains the baseline and candidate models, selects the best model, tunes the serving threshold, and writes the bundle and candidate manifest
-- `evaluate`: evaluates the selected candidate on the holdout split and writes test metrics and PR curve artifacts
-- `monitor`: compares reference and current slices and writes drift output
-- `promote`: applies promotion gates and writes champion metadata plus the production bundle
+- `paths`: shows the resolved input and output locations
+- `prepare`: validates the datasets and writes cleaned outputs
 
-### Option 2: run the DVC pipeline
+## Outputs
 
-```bash
-dvc repro
+After `prepare` runs successfully, these files are created or refreshed:
+
+- `data/processed/fraudTrain.csv`
+- `data/processed/fraudTest.csv`
+- `reports/metrics/dataset_summary.json`
+
+Meaning:
+
+- `data/processed/fraudTrain.csv`: cleaned validated copy of the training dataset
+- `data/processed/fraudTest.csv`: cleaned validated copy of the test dataset
+- `reports/metrics/dataset_summary.json`: row counts, fraud rate, amount stats, date range, and unique counts
+
+## Current Folder Structure
+
+```text
+fraud-detection/
+|-- fraudTrain.csv
+|-- fraudTest.csv
+|-- README.md
+|-- pyproject.toml
+|-- dvc.yaml
+|-- configs/
+|   |-- data.yaml
+|   |-- monitoring.yaml
+|   |-- serve.yaml
+|   |-- train.yaml
+|-- data/
+|   |-- interim/
+|   |-- monitoring/
+|   |-- processed/
+|   |   |-- fraudTrain.csv
+|   |   |-- fraudTest.csv
+|   |-- raw/
+|-- deployment/
+|-- models/
+|   |-- registry/
+|   |-- trained/
+|-- reports/
+|   |-- drift/
+|   |-- figures/
+|   |-- metrics/
+|   |   |-- dataset_summary.json
+|-- scripts/
+|-- src/
+|   |-- fraud_detection/
+|   |   |-- cli.py
+|   |   |-- config.py
+|   |   |-- data/
+|   |   |   |-- schema.py
+|   |   |-- utils/
+|   |   |   |-- paths.py
+|   |   |   |-- mlflow_utils.py
+|-- streamlit_app/
+|-- tests/
 ```
 
-The DVC stages are:
+## What Each Folder Means
 
+- `configs/`: configuration files. Only `configs/data.yaml` matters for the current workflow.
+- `data/`: data storage area.
+- `data/raw/`: old raw-data location from the previous version of the project.
+- `data/interim/`: placeholder folder for temporary data if you add preprocessing later.
+- `data/monitoring/`: placeholder folder for monitoring-related data if the project grows again.
+- `data/processed/`: current validated output datasets.
+- `deployment/`: old deployment-related files from the previous full MLOps version.
+- `models/`: old model artifact folders kept in the repo structure.
+- `models/trained/`: where trained model files would go in a larger version of the project.
+- `models/registry/`: where model registration metadata would go in a larger version of the project.
+- `reports/`: generated reports.
+- `reports/metrics/`: current summary output location.
+- `reports/figures/`: placeholder for plots if you add them later.
+- `reports/drift/`: placeholder for drift reports from the old workflow.
+- `scripts/`: utility scripts that are not part of the main CLI flow.
+- `src/`: application source code.
+- `src/fraud_detection/`: main Python package.
+- `src/fraud_detection/data/`: dataset schema definitions.
+- `src/fraud_detection/utils/`: reusable helper functions.
+- `streamlit_app/`: old UI folder from the previous version.
+- `tests/`: existing test files. Some of them still target the older workflow and may need updates.
+
+## What To Put In Each Important File
+
+### Root dataset files
+
+- `fraudTrain.csv`: full training dataset
+- `fraudTest.csv`: full test dataset
+
+These should contain the original transaction rows.
+
+Expected columns:
+
+- `Unnamed: 0`
+- `trans_date_trans_time`
+- `cc_num`
+- `merchant`
+- `category`
+- `amt`
+- `first`
+- `last`
+- `gender`
+- `street`
+- `city`
+- `state`
+- `zip`
+- `lat`
+- `long`
+- `city_pop`
+- `job`
+- `dob`
+- `trans_num`
+- `unix_time`
+- `merch_lat`
+- `merch_long`
+- `is_fraud`
+
+### `configs/data.yaml`
+
+Use this file to define where the input files are and where outputs should be written.
+
+Current meaning of fields:
+
+- `train_csv`: location of `fraudTrain.csv`
+- `test_csv`: location of `fraudTest.csv`
+- `processed_dir`: folder for cleaned output files
+- `reports_dir`: folder for summary files
+- `target_column`: fraud label column name
+- `index_column`: renamed index column in processed output
+- `summary_name`: output summary file name
+- `sample_rows`: optional limit for a smaller run
+
+### `src/fraud_detection/cli.py`
+
+This is the active entry point.
+
+It should contain:
+
+- argument parsing
+- config loading
+- CSV reading
+- validation calls
+- processed output writing
+- summary writing
+
+Current commands:
+
+- `paths`
 - `prepare`
-- `train`
-- `evaluate`
-- `monitor`
-- `promote`
 
-### Smoke run on a smaller sample
+### `src/fraud_detection/data/schema.py`
 
-Useful for quick checks before a full run:
+This file should contain:
 
-```bash
-python -m fraud_detection.cli prepare --sample-rows 300000
-python -m fraud_detection.cli train --sample-rows 120000
-python -m fraud_detection.cli evaluate
-python -m fraud_detection.cli monitor
-python -m fraud_detection.cli promote
+- expected dataset column names
+- dtype definitions for reading CSV
+- validation rules for values and formats
+
+Examples of checks currently enforced:
+
+- `is_fraud` must be `0` or `1`
+- `gender` must be `F` or `M`
+- `state` must look like a 2-letter uppercase code
+- latitude and longitude must be in valid ranges
+- dates must match expected formats
+
+### `src/fraud_detection/utils/paths.py`
+
+This file should contain path helpers only.
+
+Current responsibility:
+
+- locate the project root
+- create directories if they do not exist
+
+### `src/fraud_detection/utils/mlflow_utils.py`
+
+This is a helper file kept from the older project structure.
+
+Right now it is not part of the active simplified flow. Keep utility helpers here only if you expand the project later.
+
+## Example Run
+
+Small smoke run:
+
+```powershell
+$env:PYTHONPATH='src'
+python -m fraud_detection.cli prepare --sample-rows 2000
 ```
 
-## Start the local services
+Full run:
 
-Bring up the full local stack:
-
-```bash
-docker compose up -d --build
+```powershell
+$env:PYTHONPATH='src'
+python -m fraud_detection.cli prepare
 ```
-
-Stop it:
-
-```bash
-docker compose down
-```
-
-Useful services:
-
-- API health: `http://localhost:8000/api/v1/health`
-- API docs: `http://localhost:8000/docs`
-- Streamlit UI: `http://localhost:8501`
-- MLflow: `http://localhost:5000`
-- Prometheus: `http://localhost:9090`
-- Grafana: `http://localhost:3000`
-
-To inspect logs:
-
-```bash
-docker compose logs -f api
-docker compose logs -f streamlit
-docker compose logs -f mlflow
-```
-
-## Prediction APIs
-
-### Single prediction
-
-Endpoint:
-
-```text
-POST /api/v1/predict
-```
-
-Required input fields:
-
-- `step`
-- `type`
-- `amount`
-- `nameOrig`
-- `oldbalanceOrg`
-- `newbalanceOrig`
-- `nameDest`
-- `oldbalanceDest`
-- `newbalanceDest`
-
-Example payload:
-
-```json
-{
-  "step": 1,
-  "type": "TRANSFER",
-  "amount": 5000.0,
-  "nameOrig": "C123456789",
-  "oldbalanceOrg": 5000.0,
-  "newbalanceOrig": 0.0,
-  "nameDest": "C987654321",
-  "oldbalanceDest": 0.0,
-  "newbalanceDest": 5000.0
-}
-```
-
-### Batch prediction
-
-Endpoint:
-
-```text
-POST /api/v1/predict/batch
-```
-
-The Streamlit UI also supports CSV-based batch scoring with the same columns.
-
-## Main output artifacts
-
-After a successful run, the key files are:
-
-- `models/trained/model_bundle.joblib`
-- `models/trained/production_model.joblib`
-- `models/registry/candidate.json`
-- `models/registry/champion.json`
-- `models/registry/last_promotion.json`
-- `reports/metrics/train_metrics.json`
-- `reports/metrics/test_metrics.json`
-- `reports/drift/drift_report.json`
-- `reports/figures/pr_curve.png`
-
-## GitHub Actions
-
-This repo includes:
-
-- `ci.yml`: lint, mypy, tests, smoke training, and Docker build validation
-- `retrain.yml`: scheduled or manual retraining on a self-hosted runner
-- `cd.yml`: GHCR image build and push on tags or manual dispatch
-
-### Secrets and runner requirements
-
-For GitHub Actions, configure:
-
-- `GDRIVE_CREDENTIALS_DATA` if the retrain runner should use a Google service account
-
-The retrain workflow expects:
-
-- a self-hosted runner with Python and system dependencies available
-- access to the DVC Google Drive remote
-
-The CD workflow expects:
-
-- GitHub Packages permissions to push to `ghcr.io`
 
 ## Notes
 
-- The dataset is highly imbalanced, so model selection is based on validation AUPRC instead of accuracy.
-- Production thresholding is recall-first and constrained by minimum precision and maximum FPR settings in [train.yaml](E:/MLops/fraud-detection/configs/train.yaml).
-- Docker Compose is the intended deployment path for this project size.
+- `dvc.yaml` still reflects the older full pipeline structure and is not the active workflow now.
+- Many folders remain in the repository to preserve structure, but only the dataset preparation flow is active.
+- If you want, the next cleanup step should be updating `dvc.yaml` and removing old tests so the repo matches the simplified README completely.
