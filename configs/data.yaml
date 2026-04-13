@@ -9,6 +9,6 @@ data:
   reports_dir: reports/metrics
   target_column: is_fraud
   index_column: row_id
-  summary_name: dataset_summary.json
+  summary_name: day1_data_summary.json
   sample_rows: null
 

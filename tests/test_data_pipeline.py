@@ -2,18 +2,23 @@ from __future__ import annotations
 
 import pandas as pd
 
-from fraud_detection.data.pipeline import prepare_datasets
+from fraud_detection.data.pipeline import create_train_val_test_splits
 
 
-def test_prepare_datasets_temporal_split(project_root) -> None:
-    prepare_datasets()
+def test_create_train_val_test_splits_stratified() -> None:
+    rows = []
+    for idx in range(300):
+        rows.append(
+            {
+                "feature": float(idx),
+                "is_fraud": 1 if idx % 20 == 0 else 0,
+            }
+        )
+    frame = pd.DataFrame(rows)
 
-    train_df = pd.read_parquet(project_root / "data" / "processed" / "train.parquet")
-    val_df = pd.read_parquet(project_root / "data" / "processed" / "val.parquet")
-    test_df = pd.read_parquet(project_root / "data" / "processed" / "test.parquet")
+    train_df, val_df, test_df = create_train_val_test_splits(frame, stratify=True)
 
-    assert train_df["step"].max() < val_df["step"].min()
-    assert val_df["step"].max() < test_df["step"].min()
-    assert train_df["isFraud"].sum() > 0
-    assert val_df["isFraud"].sum() > 0
-    assert test_df["isFraud"].sum() > 0
+    assert len(train_df) + len(val_df) + len(test_df) == len(frame)
+    assert train_df["is_fraud"].sum() > 0
+    assert val_df["is_fraud"].sum() > 0
+    assert test_df["is_fraud"].sum() > 0

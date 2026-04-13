@@ -1,38 +1,44 @@
 from __future__ import annotations
 
-import joblib
-import yaml
+import pandas as pd
 
-from fraud_detection.modeling.train import LGBMClassifier, train_models
-
-
-def test_train_models_writes_bundle(project_root) -> None:
-    from fraud_detection.data.pipeline import prepare_datasets
-
-    prepare_datasets()
-    train_models()
-
-    bundle = joblib.load(project_root / "models" / "trained" / "model_bundle.joblib")
-    assert bundle["metadata"]["selected_model"] in {"logistic_regression", "lightgbm"}
-    assert 0.0 <= float(bundle["threshold"]) <= 1.0
-    assert bundle["metadata"]["training_environment"]["scikit_learn"]
+from fraud_detection.modeling.train import (
+    prepare_features,
+    train_lightgbm,
+    train_logistic_regression,
+)
 
 
-def test_lightgbm_candidate_training_if_available(project_root) -> None:
-    if LGBMClassifier is None:
-        return
+def _sample_frame(rows: int = 120) -> pd.DataFrame:
+    payload = {
+        "amt": [float(i % 50) for i in range(rows)],
+        "city_pop": [1000 + i for i in range(rows)],
+        "unix_time": [1546300800 + i for i in range(rows)],
+        "is_fraud": [1 if i % 15 == 0 else 0 for i in range(rows)],
+    }
+    return pd.DataFrame(payload)
 
-    from fraud_detection.data.pipeline import prepare_datasets
 
-    prepare_datasets()
-    train_cfg_path = project_root / "configs" / "train.yaml"
-    with open(train_cfg_path, encoding="utf-8") as handle:
-        config = yaml.safe_load(handle)
-    config["models"]["candidates"] = ["lightgbm"]
-    config["models"]["optuna"]["enabled"] = False
-    with open(train_cfg_path, "w", encoding="utf-8") as handle:
-        yaml.safe_dump(config, handle, sort_keys=False)
+def test_prepare_features_selects_numeric_predictors() -> None:
+    frame = _sample_frame()
+    frame["merchant"] = "m1"
+    x, y = prepare_features(frame, target_col="is_fraud")
 
-    train_models()
-    bundle = joblib.load(project_root / "models" / "trained" / "model_bundle.joblib")
-    assert bundle["metadata"]["selected_model"] == "lightgbm"
+    assert "merchant" not in x.columns
+    assert "is_fraud" not in x.columns
+    assert len(x.columns) == 3
+    assert y.nunique() == 2
+
+
+def test_training_helpers_fit_and_predict_probabilities() -> None:
+    frame = _sample_frame()
+    x, y = prepare_features(frame, target_col="is_fraud")
+
+    logistic = train_logistic_regression(x, y, {"class_weight": "balanced", "max_iter": 200})
+    logistic_prob = logistic.predict_proba(x)[:, 1]
+    assert len(logistic_prob) == len(frame)
+
+    lightgbm = train_lightgbm(x, y, {"n_estimators": 30, "num_leaves": 15})
+    lgbm_prob = lightgbm.predict_proba(x)[:, 1]
+    assert len(lgbm_prob) == len(frame)
+    assert float(lightgbm.get_params().get("scale_pos_weight", 0.0)) > 1.0

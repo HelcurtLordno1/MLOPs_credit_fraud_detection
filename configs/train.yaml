@@ -1,3 +1,53 @@
+# Training configuration for fraud detection models - Day 2: Model Training & Bias-Variance Analysis
+
+data:
+  processed_dir: "data/processed"
+  train_file: "train.parquet"
+  val_file: "val.parquet"
+  test_file: "test.parquet"
+  target_column: "is_fraud"
+
+model:
+  run_name: "credit-fraud-day2"
+  
+  # Logistic Regression baseline
+  logistic:
+    C: 1.0
+    max_iter: 1000
+    solver: "lbfgs"
+    class_weight: "balanced"
+    random_state: 42
+  
+  # LightGBM gradient boosting
+  lightgbm:
+    n_estimators: 400
+    learning_rate: 0.05
+    num_leaves: 63
+    subsample: 0.9
+    colsample_bytree: 0.9
+    reg_lambda: 1.0
+    reg_alpha: 0.0
+    min_child_samples: 50
+    objective: "binary"
+    metric: "auc"
+    random_state: 42
+    n_jobs: -1
+
+evaluation:
+  metrics:
+    - "auc_roc"
+    - "auprc"
+    - "recall"
+    - "precision"
+    - "f1"
+  
+  # Threshold for binary classification
+  threshold: 0.5
+  
+  # Bias-variance analysis thresholds
+  variance_threshold: 0.05
+  overfitting_threshold: 0.15
+
 experiment:
   name: fraud-detector
   tracking_uri: ./mlruns

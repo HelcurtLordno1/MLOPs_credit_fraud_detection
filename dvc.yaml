@@ -1,67 +1,68 @@
 stages:
   prepare:
-    cmd: python -m fraud_detection.cli prepare
+    cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli prepare
     deps:
-      - data/raw/paysim_fraud.zip
+      - fraudTrain.csv
+      - fraudTest.csv
       - configs/data.yaml
       - src/fraud_detection/data/pipeline.py
+      - src/fraud_detection/data/features.py
       - src/fraud_detection/data/schema.py
       - src/fraud_detection/utils/paths.py
     outs:
       - data/processed/train.parquet
       - data/processed/val.parquet
       - data/processed/test.parquet
-      - data/processed/reference.parquet
-      - data/processed/current.parquet
-      - reports/metrics/data_quality.json
-      - reports/metrics/split_summary.json
+      - reports/metrics/day1_data_summary.json
 
   train:
-    cmd: python -m fraud_detection.cli train
+    cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli train
     deps:
-      - configs/data.yaml
       - configs/train.yaml
-      - configs/serve.yaml
-      - src/fraud_detection/data/features.py
       - src/fraud_detection/modeling/train.py
+      - src/fraud_detection/modeling/evaluate.py
+      - src/fraud_detection/data/features.py
+      - src/fraud_detection/data/pipeline.py
       - data/processed/train.parquet
       - data/processed/val.parquet
       - data/processed/test.parquet
     outs:
-      - models/trained/model_bundle.joblib
-      - models/registry/candidate.json
+      - models/trained/best_model.joblib
       - reports/metrics/train_metrics.json
 
   evaluate:
-    cmd: python -m fraud_detection.cli evaluate
+    cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli evaluate
     deps:
-      - configs/serve.yaml
       - src/fraud_detection/modeling/evaluate.py
+      - src/fraud_detection/modeling/train.py
+      - configs/train.yaml
       - data/processed/test.parquet
-      - models/trained/model_bundle.joblib
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+      - models/trained/best_model.joblib
     outs:
       - reports/metrics/test_metrics.json
-      - reports/figures/pr_curve.png
-
-  monitor:
-    cmd: python -m fraud_detection.cli monitor
-    deps:
-      - configs/monitoring.yaml
-      - src/fraud_detection/monitoring/drift.py
-      - data/processed/reference.parquet
-      - data/processed/current.parquet
-    outs:
-      - reports/drift/drift_report.json
 
   promote:
-    cmd: python -m fraud_detection.cli promote
+    cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli promote
     deps:
       - configs/train.yaml
-      - configs/serve.yaml
       - reports/metrics/train_metrics.json
-      - reports/drift/drift_report.json
+      - reports/metrics/test_metrics.json
+      - models/trained/best_model.joblib
       - src/fraud_detection/monitoring/promotion.py
     outs:
-      - models/registry/champion.json
       - models/registry/last_promotion.json
+
+  drift:
+    cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli drift
+    deps:
+      - configs/monitoring.yaml
+      - data/processed/train.parquet
+      - data/processed/test.parquet
+      - models/registry/last_promotion.json
+      - src/fraud_detection/cli.py
+      - src/fraud_detection/monitoring/drift.py
+    outs:
+      - reports/drift/drift_report.json
 

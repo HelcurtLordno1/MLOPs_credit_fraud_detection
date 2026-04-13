@@ -7,7 +7,7 @@ name = "fraud-detection-mlops"
 version = "0.1.0"
 description = "End-to-end MLOps project for PaySim fraud detection"
 readme = "README.md"
-requires-python = ">=3.9,<3.13"
+requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [
   { name = "OpenAI Codex" }
