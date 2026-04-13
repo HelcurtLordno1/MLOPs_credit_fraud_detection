@@ -1,9 +1,22 @@
 stages:
   prepare:
-    cmd: python src/ml/data.py
+    cmd: ./.venv/bin/python -m src.ml.data
     deps:
-      - data/raw/creditcard.csv
+      - src/ml/data.py
+      - data/fraudTrain.csv
+      - data/fraudTest.csv
     outs:
       - data/processed/train.parquet
+      - data/processed/val.parquet
       - data/processed/test.parquet
-      - data/processed/reference.parquet
+  train:
+    cmd: ./.venv/bin/python -m src.ml.train
+    deps:
+      - src/ml/train.py
+      - configs/training.yaml
+      - data/processed/train.parquet
+      - data/processed/val.parquet
+      - data/processed/test.parquet
+    outs:
+      - model.joblib
+      - reports/train_metrics.json

@@ -2,6 +2,8 @@ pandas
 numpy
 scikit-learn
 mlflow
+lightgbm
+pyarrow
 fastapi
 uvicorn
 evidently

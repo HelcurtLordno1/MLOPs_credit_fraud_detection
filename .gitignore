@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+.DS_Store
 
 # Virtual environments
 .venv/
@@ -18,5 +19,11 @@ env/
 # DVC cache and temp
 .dvc/cache/
 
+# MLflow local runs
+mlruns/
+
 # Raw dataset files (track with DVC, not git)
 data/raw/*.csv
+data/fraudTrain.csv
+data/fraudTest.csv
+/model.joblib

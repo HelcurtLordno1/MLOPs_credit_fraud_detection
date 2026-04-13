@@ -1,0 +1,62 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: ./.venv/bin/python -m src.ml.data
+    deps:
+    - path: data/fraudTest.csv
+      hash: md5
+      md5: 692357a2589a1a6fcd44f14b3e1f9d2c
+      size: 150354339
+    - path: data/fraudTrain.csv
+      hash: md5
+      md5: 9723893e5492dc0551036edcf596e284
+      size: 351238196
+    - path: src/ml/data.py
+      hash: md5
+      md5: bf2d72841225263e26e773a1228c754b
+      size: 9103
+    outs:
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: ddf0d6efc2a95636df5006cd157c3bb1
+      size: 24347473
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: 8614b2a73fa4c25f50df536dd5126653
+      size: 51769981
+    - path: data/processed/val.parquet
+      hash: md5
+      md5: b99bbe751705b5034f7aa067cc2736ed
+      size: 9984755
+  train:
+    cmd: ./.venv/bin/python -m src.ml.train
+    deps:
+    - path: configs/training.yaml
+      hash: md5
+      md5: 6cdb9cc6fd27f04f0f5bbfe67dc192c6
+      size: 530
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: ddf0d6efc2a95636df5006cd157c3bb1
+      size: 24347473
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: 8614b2a73fa4c25f50df536dd5126653
+      size: 51769981
+    - path: data/processed/val.parquet
+      hash: md5
+      md5: b99bbe751705b5034f7aa067cc2736ed
+      size: 9984755
+    - path: src/ml/train.py
+      hash: md5
+      md5: 384bae4180201d93423a716a7c318279
+      size: 14273
+    outs:
+    - path: model.joblib
+      hash: md5
+      md5: 49ec15f4f678162e31109ea8106a3e36
+      size: 2814708
+    - path: reports/train_metrics.json
+      hash: md5
+      md5: eb75c6ccc8b685cdc580b22fed22b5c2
+      size: 1638
