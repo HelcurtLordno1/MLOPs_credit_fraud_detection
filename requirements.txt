@@ -40,14 +40,7 @@ distro==1.9.0
 docker==7.1.0
 dpath==2.2.0
 dulwich==1.1.0
-dvc==3.67.1
-dvc-data==3.18.3
-dvc-gdrive==3.0.1
-dvc-http==2.32.0
-dvc-objects==5.2.0
-dvc-render==1.0.2
-dvc-studio-client==0.22.0
-dvc-task==0.40.2
+dvc[gdrive]==3.67.0
 entrypoints==0.4
 executing==2.2.1
 fastapi==0.135.3

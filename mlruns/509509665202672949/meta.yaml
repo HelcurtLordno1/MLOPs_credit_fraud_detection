@@ -1,0 +1,8 @@
+artifact_location: file:F:/PYTHON/MLOPs_credit_fraud_detection/mlruns/509509665202672949
+creation_time: 1776157198189
+experiment_id: '509509665202672949'
+last_update_time: 1776157198189
+lifecycle_stage: active
+name: fraud-detector
+trace_location: null
+workspace: default

@@ -1,0 +1,14 @@
+artifact_uri: file:F:/PYTHON/MLOPs_credit_fraud_detection/mlruns/509509665202672949/d83f7e23a6474034bf3983a6d03b2a3f/artifacts
+end_time: 1776157209391
+entry_point_name: ''
+experiment_id: '509509665202672949'
+lifecycle_stage: active
+run_id: d83f7e23a6474034bf3983a6d03b2a3f
+run_name: credit-fraud-day2
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1776157198709
+status: 3
+tags: []
+user_id: TAM

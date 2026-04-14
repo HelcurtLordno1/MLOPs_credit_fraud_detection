@@ -1,0 +1,27 @@
+model:
+  class_weight: balanced
+  logistic:
+    C: 1.0
+    max_iter: 1200
+    solver: lbfgs
+  random_forest:
+    n_estimators: 300
+    max_depth: 10
+    min_samples_leaf: 2
+    class_weight: balanced_subsample
+
+candidates:
+  - logistic_regression
+  - random_forest
+
+features:
+  drop_columns:
+    - Time
+
+thresholds:
+  policy: balanced_f1
+  min_auc: 0.90
+  min_auprc: 0.85
+  min_recall: 0.92
+  min_precision: 0.80
+  max_fpr: 0.05

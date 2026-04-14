@@ -1,9 +1,9 @@
 stages:
   prepare:
-    cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli prepare
+    cmd: set PYTHONPATH=src&& venv\Scripts\python.exe -m fraud_detection.cli prepare
     deps:
-      - fraudTrain.csv
-      - fraudTest.csv
+      - data/raw/fraudTrain.csv
+      - data/raw/fraudTest.csv
       - configs/data.yaml
       - src/fraud_detection/data/pipeline.py
       - src/fraud_detection/data/features.py
@@ -16,7 +16,7 @@ stages:
       - reports/metrics/day1_data_summary.json
 
   train:
-    cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli train
+    cmd: set PYTHONPATH=src&& venv\Scripts\python.exe -m fraud_detection.cli train
     deps:
       - configs/train.yaml
       - src/fraud_detection/modeling/train.py
@@ -31,7 +31,7 @@ stages:
       - reports/metrics/train_metrics.json
 
   evaluate:
-    cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli evaluate
+    cmd: set PYTHONPATH=src&& venv\Scripts\python.exe -m fraud_detection.cli evaluate
     deps:
       - src/fraud_detection/modeling/evaluate.py
       - src/fraud_detection/modeling/train.py
@@ -44,7 +44,7 @@ stages:
       - reports/metrics/test_metrics.json
 
   promote:
-    cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli promote
+    cmd: set PYTHONPATH=src&& venv\Scripts\python.exe -m fraud_detection.cli promote
     deps:
       - configs/train.yaml
       - reports/metrics/train_metrics.json
@@ -55,7 +55,7 @@ stages:
       - models/registry/last_promotion.json
 
   drift:
-    cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli drift
+    cmd: set PYTHONPATH=src&& venv\Scripts\python.exe -m fraud_detection.cli drift
     deps:
       - configs/monitoring.yaml
       - data/processed/train.parquet

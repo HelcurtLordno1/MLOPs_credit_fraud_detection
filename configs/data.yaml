@@ -3,8 +3,8 @@ project:
   seed: 42
 
 data:
-  train_csv: fraudTrain.csv
-  test_csv: fraudTest.csv
+  train_csv: data/raw/fraudTrain.csv
+  test_csv: data/raw/fraudTest.csv
   processed_dir: data/processed
   reports_dir: reports/metrics
   target_column: is_fraud
