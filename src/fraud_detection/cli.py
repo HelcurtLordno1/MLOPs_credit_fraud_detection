@@ -561,6 +561,8 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("evaluate", help="Evaluate the saved model on train/val/test splits")
     subparsers.add_parser("promote", help="Compare challenger vs champion and promote if approved")
     subparsers.add_parser("drift", help="Run feature/target drift monitoring and write report")
+    tune = subparsers.add_parser("tune", help="Run Day 4 hyperparameter tuning and save tuning artifacts")
+    tune.add_argument("--n-trials", type=int, default=15, help="Optuna trials per model")
     return parser
 
 
@@ -578,6 +580,10 @@ def main() -> None:
         promote_pipeline()
     elif args.command == "drift":
         drift_pipeline()
+    elif args.command == "tune":
+        from fraud_detection.modeling.fine_tune import run_fine_tuning_pipeline
+
+        run_fine_tuning_pipeline(n_trials=args.n_trials)
     elif args.command == "paths":
         show_paths()
     else:

@@ -1,1 +1,3 @@
 /best_model.joblib
+/best_lr_tuned_model.joblib
+/best_lgbm_tuned_model.joblib
