@@ -1,0 +1,26 @@
+{
+  "day": 1,
+  "stage": "Data Preparation & Feature Engineering",
+  "raw_rows": 1852394,
+  "original_features": 22,
+  "engineered_features": 44,
+  "splits": {
+    "train": {
+      "rows": 1296675,
+      "fraud_rate": 0.005210249291456996
+    },
+    "val": {
+      "rows": 185240,
+      "fraud_rate": 0.0052094580004318726
+    },
+    "test": {
+      "rows": 370479,
+      "fraud_rate": 0.005209472061844261
+    }
+  },
+  "outputs": {
+    "train": "data\\processed\\train.parquet",
+    "val": "data\\processed\\val.parquet",
+    "test": "data\\processed\\test.parquet"
+  }
+}

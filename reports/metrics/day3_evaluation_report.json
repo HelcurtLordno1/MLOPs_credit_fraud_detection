@@ -1,0 +1,81 @@
+{
+  "day": 3,
+  "stage": "Model Evaluation & Promotion",
+  "timestamp": "2026-04-13T22:27:37.396741",
+  "model_info": {
+    "best_model_from_day2": "LightGBM",
+    "model_type": "LGBMClassifier"
+  },
+  "evaluation_metrics": {
+    "train": {
+      "auc_roc": 0.9999891199836223,
+      "auprc": 0.9977136025581741,
+      "recall": 1.0,
+      "precision": 0.7069903725408121,
+      "f1": 0.8283472290338402
+    },
+    "validation": {
+      "auc_roc": 0.9984129936461542,
+      "auprc": 0.9452076349283278,
+      "recall": 0.9367875647668393,
+      "precision": 0.6522366522366523,
+      "f1": 0.7690344534240748
+    },
+    "test": {
+      "auc_roc": 0.9988039497901003,
+      "auprc": 0.9465031275705751,
+      "recall": 0.9430051813471503,
+      "precision": 0.6317250954529677,
+      "f1": 0.7565994595718146
+    }
+  },
+  "bias_variance_analysis": {
+    "train_auprc": 0.9977136025581741,
+    "val_auprc": 0.9452076349283278,
+    "test_auprc": 0.9465031275705751,
+    "train_val_gap_auprc": 0.05250596762984627,
+    "train_test_gap_auprc": 0.05121047498759901,
+    "val_test_gap_auprc": 0.0012954926422472646,
+    "diagnosis": "MODERATE VARIANCE"
+  },
+  "feature_count": 30,
+  "data_splits": {
+    "train_size": 1296675,
+    "val_size": 185240,
+    "test_size": 370479
+  },
+  "promotion_decision": {
+    "should_promote": true,
+    "reason": "AUPRC: 0.9452 >= 0.9263 \u2713 | Recall: 0.9368 >= 0.9087 \u2713 | Precision: 0.6522 >= 0.6196 \u2713",
+    "challenger_metrics": {
+      "val_auprc": 0.9452076349283278,
+      "val_recall": 0.9367875647668393,
+      "val_precision": 0.6522366522366523,
+      "test_auprc": 0.9465031275705751,
+      "test_recall": 0.9430051813471503,
+      "test_precision": 0.6317250954529677
+    },
+    "champion_metrics": {
+      "val_auprc": 0.9263034822297612,
+      "val_recall": 0.9086839378238342,
+      "val_precision": 0.6522366522366523
+    }
+  },
+  "drift_analysis": {
+    "features_with_drift": 0,
+    "target_drift": {
+      "reference_fraud_rate": 0.005210249291456996,
+      "current_fraud_rate": 0.005209472061844261,
+      "fraud_rate_change": -7.772296127346243e-07,
+      "p_value": 1.0,
+      "drifted": false,
+      "threshold": 0.05
+    }
+  },
+  "recommendations": [
+    "Model diagnosis: MODERATE VARIANCE",
+    "Overall AUPRC on test: 0.9465",
+    "Promotion status: APPROVED",
+    "Detected drift in 0 features"
+  ]
+}
