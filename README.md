@@ -246,6 +246,49 @@ ELSE keep champion and request iteration
 
 ---
 
+### 🟢 Day 4: API, UI, and Containerization (Task 4)
+**Role**: Interface Engineer | **Focus**: Serving the champion model
+
+**Objectives**:
+1. Implement a FastAPI inference service (`src/fraud_detection/api/`) simulating production.
+2. Build an interactive Streamlit Operations Dashboard (`streamlit_app/app.py`).
+3. Containerize the full stack using `Dockerfile` and `docker-compose.yaml` (MLflow + API + Streamlit).
+4. Prepare Kubernetes YAML manifests (`k8s/`) for deployments and services.
+
+**How to run Day 4 services locally**:
+
+**Option 1: Using pure Python (Virtual Environment)**
+```powershell
+# Bật Terminal 1 (Chạy API)
+.venv\Scripts\activate
+$env:PYTHONPATH='src'
+uvicorn fraud_detection.api.main:app --reload --port 8000
+
+# Bật Terminal 2 (Chạy Streamlit Dashboard)
+.venv\Scripts\activate
+$env:PYTHONPATH='src'
+streamlit run streamlit_app/app.py
+```
+* Truy cập API Docs: `http://localhost:8000/docs`
+* Truy cập Dashboard: `http://localhost:8501`
+
+**Option 2: Using Docker Compose**
+*(Yêu cầu phải có Docker Desktop đang chạy)*
+```powershell
+docker-compose up --build
+```
+
+**Option 3: Kubernetes (Minikube test)**
+```powershell
+minikube start
+kubectl apply -f k8s/
+kubectl get pods
+# Lấy URL kết nối API (NodePort)
+minikube service fraud-api-service --url
+```
+
+---
+
 ## 📚 Key Concepts & Terminology
 
 - **Feature Engineering**: Transforming raw transactions into stronger model inputs.
@@ -296,5 +339,5 @@ Team lead planning reference: `project_plan.md`.
 
 ---
 
-*Last updated: 2026-04-14*
-*Status: ✅ Days 1-3 backbone + DVC monitoring/tuning integration verified*
+*Last updated: 2026-04-15*
+*Status: ✅ Days 1-4 completed (Data, Training, Evaluation, API, UI, and Containerization verified)*
