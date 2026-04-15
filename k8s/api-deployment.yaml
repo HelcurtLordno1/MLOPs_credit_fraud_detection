@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fraud-api
+  labels:
+    app: fraud-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fraud-api
+  template:
+    metadata:
+      labels:
+        app: fraud-api
+    spec:
+      containers:
+        - name: fraud-api
+          image: fraud-api:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: MLFLOW_TRACKING_URI
+              value: "http://mlflow-service:5000"
+            - name: PYTHONPATH
+              value: "/app/src"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"

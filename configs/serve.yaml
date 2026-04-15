@@ -1,0 +1,11 @@
+# Serving configuration for the Fraud Detection API
+
+service:
+  model_path: models/trained/best_model.joblib
+  threshold: 0.5
+  host: "0.0.0.0"
+  port: 8000
+
+model:
+  name: "fraud-detector"
+  version: "1.0.0"
