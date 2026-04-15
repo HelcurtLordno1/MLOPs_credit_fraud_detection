@@ -39,11 +39,11 @@ stages:
       size: 48569892
     - path: data/processed/train.parquet
       hash: md5
-      md5: c8cc45ce9e6a0486331f8b6422b6a9ca
+      md5: 4d0c7e7134d1785fba59de590ec4d36b
       size: 166642790
     - path: data/processed/val.parquet
       hash: md5
-      md5: a2e6ed7b9f8f3360cbbc1b7c70fc6014
+      md5: 301c69c88049a21c99d1797eb441f84f
       size: 25409665
     - path: reports/metrics/day1_data_summary.json
       hash: md5
@@ -63,11 +63,11 @@ stages:
       size: 48569892
     - path: data/processed/train.parquet
       hash: md5
-      md5: c8cc45ce9e6a0486331f8b6422b6a9ca
+      md5: 4d0c7e7134d1785fba59de590ec4d36b
       size: 166642790
     - path: data/processed/val.parquet
       hash: md5
-      md5: a2e6ed7b9f8f3360cbbc1b7c70fc6014
+      md5: 301c69c88049a21c99d1797eb441f84f
       size: 25409665
     - path: src/fraud_detection/data/features.py
       hash: md5
@@ -88,11 +88,11 @@ stages:
     outs:
     - path: models/trained/best_model.joblib
       hash: md5
-      md5: a873f459b665a89198ea235e654631b4
-      size: 2811940
+      md5: 34b06db104ad9f6d9a0ad178d150c3f3
+      size: 2812004
     - path: reports/metrics/train_metrics.json
       hash: md5
-      md5: 0ebd24e4de7e47058237ecb13eb61b07
+      md5: 3746b23be28a0f89b3844d3a05eb61cd
       size: 1522
   evaluate:
     cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli 
@@ -108,16 +108,16 @@ stages:
       size: 48569892
     - path: data/processed/train.parquet
       hash: md5
-      md5: c8cc45ce9e6a0486331f8b6422b6a9ca
+      md5: 4d0c7e7134d1785fba59de590ec4d36b
       size: 166642790
     - path: data/processed/val.parquet
       hash: md5
-      md5: a2e6ed7b9f8f3360cbbc1b7c70fc6014
+      md5: 301c69c88049a21c99d1797eb441f84f
       size: 25409665
     - path: models/trained/best_model.joblib
       hash: md5
-      md5: a873f459b665a89198ea235e654631b4
-      size: 2811940
+      md5: 34b06db104ad9f6d9a0ad178d150c3f3
+      size: 2812004
     - path: src/fraud_detection/modeling/evaluate.py
       hash: md5
       md5: 1a1d03d0a51737938a46b065781e1db1
@@ -129,8 +129,8 @@ stages:
     outs:
     - path: reports/metrics/test_metrics.json
       hash: md5
-      md5: 4f9a6229893623c2861b1da0324a5845
-      size: 1141
+      md5: e3309de3b059ed5156477528139aab90
+      size: 1044
   promote:
     cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli 
       promote
@@ -141,15 +141,15 @@ stages:
       size: 1178
     - path: models/trained/best_model.joblib
       hash: md5
-      md5: a873f459b665a89198ea235e654631b4
-      size: 2811940
+      md5: 34b06db104ad9f6d9a0ad178d150c3f3
+      size: 2812004
     - path: reports/metrics/test_metrics.json
       hash: md5
-      md5: 4f9a6229893623c2861b1da0324a5845
-      size: 1141
+      md5: e3309de3b059ed5156477528139aab90
+      size: 1044
     - path: reports/metrics/train_metrics.json
       hash: md5
-      md5: 0ebd24e4de7e47058237ecb13eb61b07
+      md5: 3746b23be28a0f89b3844d3a05eb61cd
       size: 1522
     - path: src/fraud_detection/monitoring/promotion.py
       hash: md5
@@ -158,8 +158,8 @@ stages:
     outs:
     - path: models/registry/last_promotion.json
       hash: md5
-      md5: 6cf791bc3e53b969e5c96438d0c3e4a4
-      size: 2197
+      md5: b1ee86cecead649d47bee67980524737
+      size: 414
   drift:
     cmd: set PYTHONPATH=src&& .venv\Scripts\python.exe -m fraud_detection.cli 
       drift
@@ -174,12 +174,12 @@ stages:
       size: 48569892
     - path: data/processed/train.parquet
       hash: md5
-      md5: c8cc45ce9e6a0486331f8b6422b6a9ca
+      md5: 4d0c7e7134d1785fba59de590ec4d36b
       size: 166642790
     - path: models/registry/last_promotion.json
       hash: md5
-      md5: 6cf791bc3e53b969e5c96438d0c3e4a4
-      size: 2197
+      md5: b1ee86cecead649d47bee67980524737
+      size: 414
     - path: src/fraud_detection/cli.py
       hash: md5
       md5: fc41c1dff84edc7e4f0791c82a370575
@@ -207,11 +207,11 @@ stages:
       size: 48569892
     - path: data/processed/train.parquet
       hash: md5
-      md5: c8cc45ce9e6a0486331f8b6422b6a9ca
+      md5: 4d0c7e7134d1785fba59de590ec4d36b
       size: 166642790
     - path: data/processed/val.parquet
       hash: md5
-      md5: a2e6ed7b9f8f3360cbbc1b7c70fc6014
+      md5: 301c69c88049a21c99d1797eb441f84f
       size: 25409665
     - path: src/fraud_detection/cli.py
       hash: md5
@@ -232,21 +232,21 @@ stages:
     outs:
     - path: models/trained/best_lgbm_tuned_model.joblib
       hash: md5
-      md5: 3bc926c7c096da19a5a21e798e6beb4a
-      size: 6433524
+      md5: 7a4c0a709402b7a677119b29f509cabc
+      size: 5124996
     - path: models/trained/best_lr_tuned_model.joblib
       hash: md5
-      md5: 6188b6b4bb80e2349b0615b94a03abe9
+      md5: ad3f68503d135d7edf0064f9f02a6428
       size: 2929
     - path: reports/hyperparameter_tuning/lgbm_tuning_results.json
       hash: md5
-      md5: 7bfb477999a3628737ac172a380e6481
-      size: 1652
+      md5: 9793e491411a43625588894f1c1e9918
+      size: 1651
     - path: reports/hyperparameter_tuning/lr_tuning_results.json
       hash: md5
-      md5: d9ec0caa2361e057039ca7a1a1cc06c4
-      size: 1499
+      md5: 25be514dc40f4d3a6d777c9e70715c91
+      size: 1498
     - path: reports/hyperparameter_tuning/tuning_summary_report.txt
       hash: md5
-      md5: ab9a4459f7348add24a04dd4c0eee473
+      md5: 515819aa1c0528e5e72a6a714e777621
       size: 192
