@@ -276,12 +276,43 @@ streamlit run streamlit_app/app.py
 * Truy cập Dashboard: `http://localhost:8501`
 
 **Option 2: Using Docker Compose**
-*(Yêu cầu phải có Docker Desktop đang chạy)*
+*(Requires Docker Desktop to be running)*
 ```powershell
 docker-compose up --build
 ```
 
-**Option 3: Kubernetes (Minikube test)**
+**Option 3: Local Kubernetes with Kind (Recommended for CI/CD parity)**
+
+> `kind.exe` is listed in `.gitignore` and is **not committed to this repository**.
+> Every teammate must run the one-time setup script below before using `kubectl`.
+
+```powershell
+# One-time setup — downloads kind, creates the mlops-cluster
+PowerShell -ExecutionPolicy Bypass -File scripts/setup_kind.ps1
+```
+
+Once the cluster is running, build and deploy locally:
+```powershell
+# Build images
+docker build -t mlops_frauddetect:api-local .
+docker build -t mlops_frauddetect:streamlit-local -f streamlit_app/Dockerfile .
+
+# Load directly into Kind — no Docker Hub push needed
+kind load docker-image mlops_frauddetect:api-local --name mlops-cluster
+kind load docker-image mlops_frauddetect:streamlit-local --name mlops-cluster
+
+# Deploy
+kubectl apply -f k8s/
+
+# Access services (open in separate terminals)
+kubectl port-forward svc/fraud-api-service 8000:8000
+kubectl port-forward svc/streamlit-service 8501:8501
+```
+
+> **CI/CD Note:** The `cd.yml` GitHub Actions pipeline automatically downloads `kind` on every run
+> using `curl`. Teammates never need to commit or share `kind.exe`.
+
+**Option 4: Kubernetes (Minikube)**
 ```powershell
 minikube start
 kubectl apply -f k8s/

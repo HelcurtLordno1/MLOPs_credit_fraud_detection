@@ -98,30 +98,74 @@ jobs:
         run: python -m fraud_detection.cli evaluate
 
   deploy:
-    name: Build & Push Docker Image
+    name: Build, Validate on Kind & Push
     runs-on: ubuntu-latest
     needs: [train, evaluate]
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
 
-      - name: Login to Docker Hub
+      # -- Step 1: Install kind (downloaded automatically, never committed to git) --
+      - name: Install kind
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+          chmod +x ./kind
+          sudo mv ./kind /usr/local/bin/kind
+          kind version
 
-      - name: Build and Push Docker Images
+      # -- Step 2: Install kubectl --
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+          kubectl version --client
+
+      # -- Step 3: Create Kind cluster using the committed kind-config.yaml --
+      - name: Create Kind cluster
+        run: |
+          kind create cluster --name mlops-cluster --config kind-config.yaml
+          kubectl cluster-info --context kind-mlops-cluster
+          kubectl get nodes
+
+      # -- Step 4: Build Docker images locally on the runner --
+      - name: Build Docker images
         run: |
           TAG=${GITHUB_SHA::7}
+          docker build -t mlops_frauddetect:api-$TAG .
+          docker build -t mlops_frauddetect:streamlit-$TAG -f streamlit_app/Dockerfile .
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      # -- Step 5: Load images directly into Kind (no Docker Hub pull needed) --
+      - name: Load images into Kind cluster
+        run: |
+          kind load docker-image mlops_frauddetect:api-${{ env.TAG }} --name mlops-cluster
+          kind load docker-image mlops_frauddetect:streamlit-${{ env.TAG }} --name mlops-cluster
+          echo "Images loaded into all Kind nodes successfully"
+
+      # -- Step 6: Patch manifests with the new tag and apply to Kind --
+      - name: Deploy to Kind cluster
+        run: |
+          sed -i "s|image: mlops_frauddetect:api-local|image: mlops_frauddetect:api-${{ env.TAG }}|g" k8s/api-deployment.yaml
+          sed -i "s|image: mlops_frauddetect:streamlit-local|image: mlops_frauddetect:streamlit-${{ env.TAG }}|g" k8s/streamlit-deployment.yaml
+          kubectl apply -f k8s/
+
+      # -- Step 7: Wait for rollout and verify all pods are healthy --
+      - name: Verify deployment health
+        run: |
+          kubectl rollout status deployment/fraud-api --timeout=120s
+          kubectl rollout status deployment/streamlit --timeout=120s
+          kubectl get pods,svc
+          echo "All deployments are healthy"
+
+      # -- Step 8: Tag and push verified images to Docker Hub for storage --
+      - name: Push images to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          TAG=${{ env.TAG }}
           REPO="dotuandat199433/mlops_frauddetect"
-
-          # Build and push API image
-          docker build -t $REPO:api-$TAG .
+          docker tag mlops_frauddetect:api-$TAG $REPO:api-$TAG
+          docker tag mlops_frauddetect:streamlit-$TAG $REPO:streamlit-$TAG
           docker push $REPO:api-$TAG
-
-          # Build and push Streamlit image
-          docker build -t $REPO:streamlit-$TAG -f streamlit_app/Dockerfile .
           docker push $REPO:streamlit-$TAG
+          echo "Pushed: $REPO:api-$TAG and $REPO:streamlit-$TAG"
 
-          echo "✅ Images pushed:"
-          echo "  - $REPO:api-$TAG"
-          echo "  - $REPO:streamlit-$TAG"
