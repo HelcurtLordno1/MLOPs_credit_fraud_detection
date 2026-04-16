@@ -1,0 +1,53 @@
+name: Retrain and Deploy Model
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  retrain-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install dvc[gdrive]
+
+      - name: Pull data and models (DVC)
+        env:
+          GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
+        run: |
+          dvc pull
+
+      - name: Retrain Model Pipeline
+        run: |
+          dvc repro
+
+      - name: Login to Docker Hub
+        shell: bash
+        run: |
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Build and Push new API Image
+        shell: bash
+        run: |
+          TAG=${GITHUB_SHA::7}
+          IMAGE_NAME="dotuandat199433/mlops_frauddetect"
+          
+          docker build -t $IMAGE_NAME:api-$TAG .
+          docker push $IMAGE_NAME:api-$TAG
+          
+          # Update image tag in k8s manifests
+          sed -i "s|image: dotuandat199433/mlops_frauddetect:api-v1|image: $IMAGE_NAME:api-$TAG|g" k8s/api-deployment.yaml
