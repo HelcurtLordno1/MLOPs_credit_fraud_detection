@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: streamlit
-          image: fraud-streamlit:latest
+          image: mlops_frauddetect:streamlit-local
+          imagePullPolicy: Never
           ports:
             - containerPort: 8501
           env:
@@ -37,7 +38,7 @@ metadata:
   labels:
     app: streamlit
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: streamlit
   ports:
@@ -45,4 +46,3 @@ spec:
       protocol: TCP
       port: 8501
       targetPort: 8501
-      nodePort: 30085

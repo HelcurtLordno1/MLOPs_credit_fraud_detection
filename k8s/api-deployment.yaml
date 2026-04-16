@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: fraud-api
-          image: fraud-api:latest
+          image: mlops_frauddetect:api-local
+          imagePullPolicy: Never
           ports:
             - containerPort: 8000
           env:

@@ -1,11 +1,30 @@
 """Drift detection for fraud detection models."""
 from __future__ import annotations
 
+import json
+import logging
 from typing import Any
 
 import numpy as np
 import pandas as pd
 from scipy import stats
+
+class JSONFormatter(logging.Formatter):
+    def format(self, record: logging.LogRecord) -> str:
+        log_record = {
+            "timestamp": self.formatTime(record),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage()
+        }
+        return json.dumps(log_record)
+
+logger = logging.getLogger("drift_monitor")
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(JSONFormatter())
+    logger.addHandler(handler)
 
 
 def detect_distribution_drift(
