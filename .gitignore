@@ -1,3 +1,7 @@
 /venv
 /.venv
 mlruns/
+kind.exe
+__pycache__/
+*.pyc
+query
