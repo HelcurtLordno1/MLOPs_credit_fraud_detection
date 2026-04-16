@@ -254,6 +254,9 @@ ELSE keep champion and request iteration
 2. Build an interactive Streamlit Operations Dashboard (`streamlit_app/app.py`).
 3. Containerize the full stack using `Dockerfile` and `docker-compose.yaml` (MLflow + API + Streamlit).
 4. Prepare Kubernetes YAML manifests (`k8s/`) for deployments and services.
+5. **Future Readiness**: The drift tracking module (`src/fraud_detection/monitoring/drift.py`) has been formatted with JSON Logging, allowing it to natively run as a Kubernetes CronJob in the future, smoothly pushing metrics to cloud platforms (like Datadog, Stackdriver, or Cloudwatch).
+
+**Docker Hub Repository**: 🐳 [dotuandat199433/mlops_frauddetect](https://hub.docker.com/repository/docker/dotuandat199433/mlops_frauddetect/general)
 
 **How to run Day 4 services locally**:
 

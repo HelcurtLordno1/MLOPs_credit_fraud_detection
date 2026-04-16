@@ -38,6 +38,7 @@ COPY src ./src
 COPY configs ./configs
 COPY models ./models
 COPY reports ./reports
+COPY pyproject.toml ./
 
 EXPOSE 8000
 

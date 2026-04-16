@@ -1,0 +1,26 @@
+# Version control
+.git
+.gitignore
+
+# Python caching & environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.env
+
+# DVC and heavy data
+.dvc/
+data/
+mlruns/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
