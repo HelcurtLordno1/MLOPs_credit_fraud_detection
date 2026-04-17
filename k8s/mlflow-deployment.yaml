@@ -28,6 +28,8 @@ spec:
             - sqlite:///mlflow/mlflow.db
             - --default-artifact-root
             - /mlflow/artifacts
+            - --workers
+            - "1"
           ports:
             - containerPort: 5000
           volumeMounts:
@@ -35,10 +37,10 @@ spec:
               mountPath: /mlflow
           resources:
             requests:
-              memory: "256Mi"
+              memory: "512Mi"
               cpu: "200m"
             limits:
-              memory: "512Mi"
+              memory: "1Gi"
               cpu: "400m"
       volumes:
         - name: mlflow-storage

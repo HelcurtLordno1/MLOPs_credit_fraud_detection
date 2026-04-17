@@ -64,7 +64,7 @@ Use this path when you want to continue from the latest shared pipeline state in
 ```bash
 git clone https://github.com/HelcurtLordno1/MLOPs_credit_fraud_detection.git
 cd MLOPs_credit_fraud_detection
-git checkout mlops_final
+git checkout main
 ```
 
 ### Step 2: Create and activate virtual environment
@@ -320,6 +320,134 @@ kubectl get pods
 # Lấy URL kết nối API (NodePort)
 minikube service fraud-api-service --url
 ```
+
+---
+
+### 🟣 Day 5: Automation Architect (Task 5)
+**Role**: DevOps / MLOps Infrastructure Architect  
+**Goal**: Run retraining + container build + Kubernetes rollout as one smooth workflow.
+
+**Day 5 objectives**:
+1. Build production-ready API and Streamlit images.
+2. Deploy full stack manifests in `k8s/` with stable runtime behavior.
+3. Automate retrain + deploy in GitHub Actions (`.github/workflows/retrain.yml`).
+4. Validate rollout health and prediction endpoint after deployment.
+
+#### 1) Pre-check tools
+```powershell
+docker --version
+kubectl version --client
+kind version
+```
+
+Expected output:
+- All commands return versions.
+- If `minikube` is missing, use Kind path below.
+
+#### 2) Build local images (Day 4 + Day 5 bridge)
+```powershell
+docker build -t mlops_frauddetect:api-local .
+docker build -t mlops_frauddetect:streamlit-local -f streamlit_app/Dockerfile .
+```
+
+Expected output:
+- Both builds finish with `naming to docker.io/library/...` and no error.
+
+#### 3) Kind deployment path (recommended for local validation)
+```powershell
+# create cluster once if needed
+PowerShell -ExecutionPolicy Bypass -File scripts/setup_kind.ps1
+
+# load local images into Kind nodes
+kind load docker-image mlops_frauddetect:api-local --name mlops-cluster
+kind load docker-image mlops_frauddetect:streamlit-local --name mlops-cluster
+
+# apply manifests
+kubectl apply -f k8s/
+kubectl get deploy,svc,pods
+```
+
+Expected output:
+- `deployment.apps/fraud-api configured`
+- `deployment.apps/mlflow configured`
+- `deployment.apps/streamlit configured`
+- Pods transition to `Running`/`Ready` (first pull may take longer).
+
+#### 4) Minikube deployment path (alternative)
+```powershell
+minikube start
+kubectl apply -f k8s/
+kubectl get pods
+minikube service fraud-api-service --url
+```
+
+Expected output:
+- A reachable API service URL is returned.
+
+#### 5) Verify rollout + health
+```powershell
+kubectl rollout restart deployment/fraud-api
+kubectl rollout restart deployment/mlflow
+kubectl rollout restart deployment/streamlit
+
+kubectl rollout status deployment/fraud-api --timeout=300s
+kubectl rollout status deployment/mlflow --timeout=300s
+kubectl rollout status deployment/streamlit --timeout=300s
+
+# local access using port-forward
+kubectl port-forward svc/fraud-api-service 8000:8000
+```
+
+In another terminal:
+```powershell
+Invoke-WebRequest http://localhost:8000/health -UseBasicParsing
+```
+
+Expected output:
+- Rollouts complete successfully.
+- `/health` returns JSON with `status: ok` and `model_loaded: true`.
+
+#### 6) Smoke test prediction endpoint
+Use a sample payload from your test set schema and call:
+```powershell
+Invoke-RestMethod -Method Post -Uri http://localhost:8000/api/v1/predict -ContentType "application/json" -Body '<JSON_PAYLOAD>'
+```
+
+Expected output:
+- JSON response with fraud probability and prediction fields.
+
+#### 7) CI/CD Day 5 flow (GitHub Actions)
+Workflow file: `.github/workflows/retrain.yml`
+
+Pipeline now performs:
+1. Install Python deps + DVC pull.
+2. Retrain with `dvc repro`.
+3. Build and push API + Streamlit images (SHA and latest tags).
+4. Install `kubectl`.
+5. Authenticate cluster using `KUBECONFIG` secret.
+6. Apply `k8s/` manifests.
+7. Restart and verify rollout for API, MLflow, Streamlit.
+
+Required GitHub Secrets:
+- `GDRIVE_CREDENTIALS_DATA`
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
+- `KUBECONFIG` (raw kubeconfig YAML or base64)
+
+#### 8) Quick troubleshooting (Day 5)
+1. API starts but model not loaded:
+   - Rebuild API image; runtime now includes `libgomp1` required by LightGBM.
+2. `ImagePullBackOff` on `fraud-api`:
+   - Confirm image exists in registry and cluster can pull it.
+   - For Kind local testing, load image with `kind load docker-image ...`.
+3. MLflow restarts (`OOMKilled`):
+   - Check `kubectl describe pod -l app=mlflow`; current manifest runs 1 worker with higher memory budget.
+
+#### 9) Day 5 expected deliverables checklist
+- Optimized multi-stage Dockerfile working for model load.
+- Kubernetes manifests in `k8s/` deployed successfully.
+- CI retrain + deploy workflow implemented and runnable.
+- Local cluster verification evidence (Kind or Minikube) with successful health/predict checks.
 
 ---
 

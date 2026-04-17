@@ -17,7 +17,7 @@ spec:
       containers:
         - name: streamlit
           image: mlops_frauddetect:streamlit-local
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8501
           env:
