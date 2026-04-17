@@ -57,44 +57,35 @@ Imbalance handling in training:
 ---
 
 ## 🧭 DVC Pipeline Diagram (`dvc dag`)
+### 📊 DVC Pipeline Diagram
 
-```text
-+-----------------------------+        +----------------------------+
-| data\raw\fraudTrain.csv.dvc |        | data\raw\fraudTest.csv.dvc |
-+-----------------------------+        +----------------------------+
-                                    ****               ****
-                                          ***         ***
-                                              **     **
-                                           +---------+
-                                          *| prepare |**
-                                  ***** +---------+  ****
-                            ****     ***        *      *****
-                     *****        *            *          *****
-                ***           **              **             ****
-    +------+        +-------+               *                ***
-    | tune |        | train |*              *                  *
-    +------+        +-------+ ***           *                  *
-                                    *       ****       *                  *
-                                    *           ***    *                  *
-                                    *              **  *                  *
-                                    *            +----------+             *
-                                     **          | evaluate |             *
-                                        **        +----------+             *
-                                           *        *                       *
-                                             **    **                        *
-                                                *  *                          *
-                                          +---------+                      **
-                                          | promote |                   ***
-                                          +---------+                ***
-                                                         *            ****
-                                                          **       ***
-                                                             *    **
-                                                         +-------+
-                                                         | drift |
-                                                         +-------+
+
+```mermaid
+graph TD
+    %% Định nghĩa các node dữ liệu (DVC)
+    subgraph Data_Sources
+        D1[data/raw/fraudTrain.csv.dvc]
+        D2[data/raw/fraudTest.csv.dvc]
+    end
+
+    %% Các bước xử lý
+    D1 --> prepare
+    D2 --> prepare
+
+    prepare --> train
+    prepare --> evaluate
+    prepare --> drift
+    prepare --> tune
+
+    train --> evaluate
+    train --> promote
+
+    evaluate --> promote
+    promote --> drift
+
+
 ```
 
----
 
 ## 🔁 Git + DVC Team Collaboration (No Need to Re-Run From Scratch)
 
