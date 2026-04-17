@@ -1,16 +1,16 @@
 # 🚀 End-to-End MLOps Fraud Detection System
 ## Credit Card Fraud Detection with Feature Engineering, Model Training & Promotion
 
-## 🤝 Team Roles Summary
+## 🤝 Team Contribution Table
 
-| Day | Role | Member | Core Responsibility |
-|-----|------|--------|---------------------|
-| 1 | Data Engineer | Member 1 | DVC data pipeline setup, feature engineering, train/val/test split outputs |
-| 2 | ML Engineer | Member 2 | Model training, MLflow logging, imbalance-aware baselines and comparisons |
-| 3 | MLOps Engineer | Member 3 | Evaluation gates, promotion policy, drift monitoring and reporting |
-| 4 | Interface Engineer | Member 4 | API schema migration and frontend alignment for Kaggle transaction fields |
-| 5 | Automation Architect | Member 5 | Container/runtime automation and deployment extension planning |
-| 6 | QA & Documentation Lead | Member 6 | Reproducibility validation, final documentation, release readiness |
+| Member | Day | Role | Day Task |
+|--------|-----|------|----------|
+| Member 1 | Day 1 | Data Engineer | DVC data pipeline setup, feature engineering, and stratified split artifacts |
+| Member 2 | Day 2 | ML Engineer | Model training, MLflow logging, and imbalance-aware model comparison |
+| Member 3 | Day 3 | MLOps Engineer | Evaluation gates, champion/challenger promotion, and drift reporting |
+| Member 4 | Day 4 | Interface Engineer | FastAPI serving, Streamlit dashboard, and API schema alignment |
+| Member 5 | Day 5 | Automation Architect | Container build/deploy flow and CI retraining automation extensions |
+| Member 6 | Day 6 | QA & Documentation Lead | Reproducibility checks, final docs polish, and release readiness |
 
 ---
 
@@ -30,7 +30,7 @@ This structure ensures teammates can work in parallel while still sharing one re
 
 ## 📊 Data Characteristics
 
-- **Dataset type**: Kaggle-style credit card transaction fraud detection.
+- **Dataset**: Kaggle Credit Card Fraud Detection.
 - **Total records**: approximately 1.11M transactions.
 - **Fraud prevalence**: approximately 0.58% (highly imbalanced binary target).
 - **Target column**: `is_fraud`.
@@ -56,6 +56,46 @@ Imbalance handling in training:
 
 ---
 
+## 🧭 DVC Pipeline Diagram (`dvc dag`)
+
+```text
++-----------------------------+        +----------------------------+
+| data\raw\fraudTrain.csv.dvc |        | data\raw\fraudTest.csv.dvc |
++-----------------------------+        +----------------------------+
+                                    ****               ****
+                                          ***         ***
+                                              **     **
+                                           +---------+
+                                          *| prepare |**
+                                  ***** +---------+  ****
+                            ****     ***        *      *****
+                     *****        *            *          *****
+                ***           **              **             ****
+    +------+        +-------+               *                ***
+    | tune |        | train |*              *                  *
+    +------+        +-------+ ***           *                  *
+                                    *       ****       *                  *
+                                    *           ***    *                  *
+                                    *              **  *                  *
+                                    *            +----------+             *
+                                     **          | evaluate |             *
+                                        **        +----------+             *
+                                           *        *                       *
+                                             **    **                        *
+                                                *  *                          *
+                                          +---------+                      **
+                                          | promote |                   ***
+                                          +---------+                ***
+                                                         *            ****
+                                                          **       ***
+                                                             *    **
+                                                         +-------+
+                                                         | drift |
+                                                         +-------+
+```
+
+---
+
 ## 🔁 Git + DVC Team Collaboration (No Need to Re-Run From Scratch)
 
 Use this path when you want to continue from the latest shared pipeline state instead of recomputing all stages locally.
@@ -69,7 +109,7 @@ git checkout main
 
 ### Step 2: Create and activate virtual environment
 ```powershell
-python -m venv .venv
+python -m venv .venv 
 .venv\Scripts\activate
 python -m pip install --upgrade pip
 ```
