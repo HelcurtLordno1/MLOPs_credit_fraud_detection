@@ -9,7 +9,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_training_config_exists():
-    assert (PROJECT_ROOT / "configs" / "training.yaml").exists()
+    assert (PROJECT_ROOT / "configs" / "train.yaml").exists()
 
 
 def test_processed_data_has_target_column():

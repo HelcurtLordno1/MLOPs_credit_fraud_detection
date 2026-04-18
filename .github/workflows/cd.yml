@@ -64,12 +64,13 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
-          pip install dvc[gdrive]
 
       - name: Pull DVC data & artifacts
-        env:
-          GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA }}
-        run: dvc pull
+        run: |
+          dvc remote modify storage --local auth basic
+          dvc remote modify storage --local user ${{ secrets.DAGSHUB_USERNAME }}
+          dvc remote modify storage --local password ${{ secrets.DAGSHUB_TOKEN }}
+          dvc pull
 
       - name: Retrain model pipeline (DVC)
         run: dvc repro

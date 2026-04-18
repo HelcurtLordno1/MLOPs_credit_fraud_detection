@@ -1,4 +1,5 @@
 """Tests for ui_helpers module."""
+
 from __future__ import annotations
 
 from fraud_detection.ui_helpers import (
@@ -11,10 +12,26 @@ from fraud_detection.ui_helpers import (
 def test_default_transaction_payload_has_required_fields() -> None:
     payload = default_transaction_payload()
     required = [
-        "cc_num", "merchant", "category", "amt", "first", "last",
-        "gender", "street", "city", "state", "zip", "lat", "long",
-        "city_pop", "job", "dob", "trans_num", "unix_time",
-        "merch_lat", "merch_long",
+        "cc_num",
+        "merchant",
+        "category",
+        "amt",
+        "first",
+        "last",
+        "gender",
+        "street",
+        "city",
+        "state",
+        "zip",
+        "lat",
+        "long",
+        "city_pop",
+        "job",
+        "dob",
+        "trans_num",
+        "unix_time",
+        "merch_lat",
+        "merch_long",
     ]
     for field in required:
         assert field in payload, f"Missing field: {field}"

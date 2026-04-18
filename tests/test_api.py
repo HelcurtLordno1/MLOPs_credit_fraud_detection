@@ -1,4 +1,5 @@
 """Tests for the Fraud Detection API endpoints."""
+
 from __future__ import annotations
 
 import pytest
@@ -62,9 +63,7 @@ class TestDriftEndpoint:
 
 
 class TestPredictEndpoint:
-    def test_predict_returns_200(
-        self, client: TestClient, sample_transaction: dict
-    ) -> None:
+    def test_predict_returns_200(self, client: TestClient, sample_transaction: dict) -> None:
         if service.model is None:
             pytest.skip("Model not loaded")
         response = client.post("/api/v1/predict", json=sample_transaction)
@@ -75,14 +74,10 @@ class TestPredictEndpoint:
         assert "threshold" in data
         assert 0.0 <= data["fraud_probability"] <= 1.0
 
-    def test_predict_batch_returns_200(
-        self, client: TestClient, sample_transaction: dict
-    ) -> None:
+    def test_predict_batch_returns_200(self, client: TestClient, sample_transaction: dict) -> None:
         if service.model is None:
             pytest.skip("Model not loaded")
-        response = client.post(
-            "/api/v1/predict/batch", json=[sample_transaction]
-        )
+        response = client.post("/api/v1/predict/batch", json=[sample_transaction])
         assert response.status_code == 200
         data = response.json()
         assert "predictions" in data
