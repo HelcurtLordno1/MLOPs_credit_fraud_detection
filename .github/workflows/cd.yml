@@ -76,13 +76,27 @@ jobs:
           dvc remote modify storage --local password ${{ secrets.DAGSHUB_TOKEN }}
           dvc pull
 
-      - name: Retrain model pipeline (DVC)
+      - name: Run prepare pipeline
         env:
           PYTHONPATH: 'src'
-        run: |
-          if ! dvc repro; then
-            echo "Warning: DVC repro failed. Check DVC remote, cache, and credentials."
-          fi
+        run: python -m fraud_detection.cli prepare
+
+      - name: Run train pipeline
+        env:
+          PYTHONPATH: 'src'
+        run: python -m fraud_detection.cli train
+
+      - name: Upload pipeline artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-artifacts
+          path: |
+            data/processed/train.parquet
+            data/processed/val.parquet
+            data/processed/test.parquet
+            models/trained/best_model.joblib
+            reports/metrics/train_metrics.json
+          retention-days: 1
 
   evaluate:
     name: Evaluate Model
@@ -101,6 +115,16 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements.txt
+
+      - name: Download pipeline artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: pipeline-artifacts
+
+      - name: Verify artifacts exist
+        run: |
+          ls -la data/processed/
+          ls -la models/trained/
 
       - name: Run evaluation
         env:
@@ -178,4 +202,3 @@ jobs:
           docker push $REPO:api-$TAG
           docker push $REPO:streamlit-$TAG
           echo "Pushed: $REPO:api-$TAG and $REPO:streamlit-$TAG"
-
