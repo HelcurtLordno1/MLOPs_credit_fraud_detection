@@ -51,9 +51,6 @@ jobs:
 
       - name: Login to Docker Hub
         shell: bash
-        if: |
-          secrets.DOCKERHUB_USERNAME != '' &&
-          secrets.DOCKERHUB_TOKEN != ''
         run: |
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
@@ -85,51 +82,3 @@ jobs:
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
-
-      - name: Configure kubeconfig
-        shell: bash
-        env:
-          KUBECONFIG_DATA: ${{ secrets.KUBECONFIG }}
-        if: |
-          secrets.KUBECONFIG != ''
-        run: |
-          mkdir -p "$HOME/.kube"
-
-          if echo "$KUBECONFIG_DATA" | grep -q "apiVersion:"; then
-            printf "%s" "$KUBECONFIG_DATA" > "$HOME/.kube/config"
-          else
-            echo "$KUBECONFIG_DATA" | base64 -d > "$HOME/.kube/config"
-          fi
-
-          chmod 600 "$HOME/.kube/config"
-          kubectl version --client
-
-      - name: Apply Kubernetes manifests
-        shell: bash
-        if: |
-          secrets.KUBECONFIG != ''
-        run: |
-          kubectl apply -f deployment/k8s/
-
-      - name: Update image tags in deployment
-        shell: bash
-        if: |
-          secrets.KUBECONFIG != ''
-        run: |
-          kubectl set image deployment/fraud-api fraud-api=$IMAGE_NAME:$API_TAG || true
-          kubectl set image deployment/streamlit streamlit=$IMAGE_NAME:$STREAMLIT_TAG || true
-
-      - name: Rollout restart and verify
-        shell: bash
-        if: |
-          secrets.KUBECONFIG != ''
-        run: |
-          kubectl rollout restart deployment/fraud-api || true
-          kubectl rollout restart deployment/mlflow || true
-          kubectl rollout restart deployment/streamlit || true
-
-          kubectl rollout status deployment/fraud-api --timeout=300s || true
-          kubectl rollout status deployment/mlflow --timeout=300s || true
-          kubectl rollout status deployment/streamlit --timeout=300s || true
-
-          echo "Deployment verification completed"

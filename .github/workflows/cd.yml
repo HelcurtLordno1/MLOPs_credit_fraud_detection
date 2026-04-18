@@ -168,10 +168,7 @@ jobs:
           echo "All deployments are healthy"
 
       # -- Step 8: Tag and push verified images to Docker Hub for storage --
-      - name: Push images to Docker Hub (optional)
-        if: |
-          secrets.DOCKERHUB_USERNAME != '' &&
-          secrets.DOCKERHUB_TOKEN != ''
+      - name: Push images to Docker Hub
         run: |
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           TAG=${{ env.TAG }}
