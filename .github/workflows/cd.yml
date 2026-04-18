@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: '0 2 * * 1'       # Weekly retraining on Monday 2AM
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   lint:
     name: Lint Check
@@ -71,10 +74,26 @@ jobs:
 
       - name: Pull DVC data & artifacts
         run: |
-          dvc remote modify storage --local auth basic
-          dvc remote modify storage --local user ${{ secrets.DAGSHUB_USERNAME }}
-          dvc remote modify storage --local password ${{ secrets.DAGSHUB_TOKEN }}
-          dvc pull
+          if [ -n "${{ secrets.DAGSHUB_USERNAME }}" ] && [ -n "${{ secrets.DAGSHUB_TOKEN }}" ]; then
+            dvc remote modify storage --local auth basic
+            dvc remote modify storage --local user ${{ secrets.DAGSHUB_USERNAME }}
+            dvc remote modify storage --local password ${{ secrets.DAGSHUB_TOKEN }}
+            dvc pull
+          else
+            echo "Info: DAGsHub secrets not configured. Skipping dvc pull and using repository data."
+          fi
+
+      - name: Ensure raw datasets are available
+        run: |
+          mkdir -p data/raw
+          if [ ! -f "data/raw/fraudTrain.csv" ] && [ -f "fraudTrain.csv" ]; then
+            cp fraudTrain.csv data/raw/fraudTrain.csv
+          fi
+          if [ ! -f "data/raw/fraudTest.csv" ] && [ -f "fraudTest.csv" ]; then
+            cp fraudTest.csv data/raw/fraudTest.csv
+          fi
+          test -f data/raw/fraudTrain.csv
+          test -f data/raw/fraudTest.csv
 
       - name: Run prepare pipeline
         env:
@@ -193,6 +212,7 @@ jobs:
 
       # -- Step 8: Tag and push verified images to Docker Hub for storage --
       - name: Push images to Docker Hub
+        if: ${{ secrets.DOCKERHUB_TOKEN != '' && secrets.DOCKERHUB_USERNAME != '' }}
         run: |
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           TAG=${{ env.TAG }}
@@ -202,3 +222,8 @@ jobs:
           docker push $REPO:api-$TAG
           docker push $REPO:streamlit-$TAG
           echo "Pushed: $REPO:api-$TAG and $REPO:streamlit-$TAG"
+
+      - name: Skip Docker Hub push (credentials missing)
+        if: ${{ secrets.DOCKERHUB_TOKEN == '' || secrets.DOCKERHUB_USERNAME == '' }}
+        run: |
+          echo "Info: Docker Hub credentials not configured. Skipping image push."

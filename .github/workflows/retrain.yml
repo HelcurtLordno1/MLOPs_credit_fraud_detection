@@ -6,6 +6,9 @@ on:
       - main
   workflow_dispatch:
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   retrain-and-deploy:
     runs-on: ubuntu-latest
@@ -28,18 +31,36 @@ jobs:
 
       - name: Pull DVC data & artifacts
         run: |
-          dvc remote modify storage --local auth basic
-          dvc remote modify storage --local user ${{ secrets.DAGSHUB_USERNAME }}
-          dvc remote modify storage --local password ${{ secrets.DAGSHUB_TOKEN }}
-          dvc pull
+          if [ -n "${{ secrets.DAGSHUB_USERNAME }}" ] && [ -n "${{ secrets.DAGSHUB_TOKEN }}" ]; then
+            dvc remote modify storage --local auth basic
+            dvc remote modify storage --local user ${{ secrets.DAGSHUB_USERNAME }}
+            dvc remote modify storage --local password ${{ secrets.DAGSHUB_TOKEN }}
+            dvc pull
+          else
+            echo "Info: DAGsHub secrets not configured. Skipping dvc pull and using repository data."
+          fi
+
+      - name: Ensure raw datasets are available
+        run: |
+          mkdir -p data/raw
+          if [ ! -f "data/raw/fraudTrain.csv" ] && [ -f "fraudTrain.csv" ]; then
+            cp fraudTrain.csv data/raw/fraudTrain.csv
+          fi
+          if [ ! -f "data/raw/fraudTest.csv" ] && [ -f "fraudTest.csv" ]; then
+            cp fraudTest.csv data/raw/fraudTest.csv
+          fi
+          test -f data/raw/fraudTrain.csv
+          test -f data/raw/fraudTest.csv
 
       - name: Retrain Model Pipeline
         env:
           PYTHONPATH: 'src'
         run: |
-          if ! dvc repro; then
-            echo "Warning: DVC repro failed. Check DVC remote, cache, and credentials."
-          fi
+          python -m fraud_detection.cli prepare
+          python -m fraud_detection.cli train
+          python -m fraud_detection.cli evaluate
+          python -m fraud_detection.cli promote
+          python -m fraud_detection.cli drift
 
       - name: Verify training outputs
         run: |
@@ -51,6 +72,7 @@ jobs:
 
       - name: Login to Docker Hub
         shell: bash
+        if: ${{ secrets.DOCKERHUB_TOKEN != '' && secrets.DOCKERHUB_USERNAME != '' }}
         run: |
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
@@ -59,7 +81,7 @@ jobs:
         run: |
           TAG=${GITHUB_SHA::7}
           docker build -t $IMAGE_NAME:api-$TAG -t $IMAGE_NAME:api-latest .
-          if [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+          if [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ] || [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ]; then
             echo "Info: Docker Hub credentials not configured. Image build completed but not pushed."
           else
             docker push $IMAGE_NAME:api-$TAG
@@ -72,7 +94,7 @@ jobs:
         run: |
           TAG=${GITHUB_SHA::7}
           docker build -t $IMAGE_NAME:streamlit-$TAG -t $IMAGE_NAME:streamlit-latest -f streamlit_app/Dockerfile .
-          if [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ]; then
+          if [ -z "${{ secrets.DOCKERHUB_TOKEN }}" ] || [ -z "${{ secrets.DOCKERHUB_USERNAME }}" ]; then
             echo "Info: Docker Hub credentials not configured. Image build completed but not pushed."
           else
             docker push $IMAGE_NAME:streamlit-$TAG
@@ -82,3 +104,25 @@ jobs:
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
+
+      - name: Configure kubeconfig
+        if: ${{ secrets.KUBECONFIG != '' }}
+        run: |
+          mkdir -p "$HOME/.kube"
+          printf '%s' '${{ secrets.KUBECONFIG }}' > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+
+      - name: Deploy updated images to Kubernetes
+        if: ${{ secrets.KUBECONFIG != '' }}
+        run: |
+          sed -i "s|image: mlops_frauddetect:api-local|image: $IMAGE_NAME:${{ env.API_TAG }}|g" deployment/k8s/api-deployment.yaml
+          sed -i "s|image: mlops_frauddetect:streamlit-local|image: $IMAGE_NAME:${{ env.STREAMLIT_TAG }}|g" deployment/k8s/streamlit-deployment.yaml
+          kubectl apply -f deployment/k8s/
+          kubectl rollout status deployment/fraud-api --timeout=300s
+          kubectl rollout status deployment/mlflow --timeout=300s
+          kubectl rollout status deployment/streamlit --timeout=300s
+
+      - name: Skip Kubernetes deploy (KUBECONFIG missing)
+        if: ${{ secrets.KUBECONFIG == '' }}
+        run: |
+          echo "Info: KUBECONFIG secret not configured. Skipping Kubernetes deployment."
