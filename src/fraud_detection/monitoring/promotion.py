@@ -1,4 +1,5 @@
 """Model promotion and lifecycle management."""
+
 from __future__ import annotations
 
 import json
@@ -120,17 +121,30 @@ class ModelPromoter:
         if champion_metrics is None:
             return True, "No champion model, promoting as first production model"
 
-        challenger_recall = challenger_metrics.get("val_recall", challenger_metrics.get("recall", 0.0))
+        challenger_recall = challenger_metrics.get(
+            "val_recall", challenger_metrics.get("recall", 0.0)
+        )
         champion_recall = champion_metrics.get("val_recall", champion_metrics.get("recall", 0.0))
-        challenger_precision = challenger_metrics.get("val_precision", challenger_metrics.get("precision", 0.0))
-        champion_precision = champion_metrics.get("val_precision", champion_metrics.get("precision", 0.0))
+        challenger_precision = challenger_metrics.get(
+            "val_precision", challenger_metrics.get("precision", 0.0)
+        )
+        champion_precision = champion_metrics.get(
+            "val_precision", champion_metrics.get("precision", 0.0)
+        )
 
         if challenger_recall < champion_recall:
-            return False, f"Challenger Recall ({challenger_recall:.4f}) < Champion ({champion_recall:.4f})"
+            return (
+                False,
+                f"Challenger Recall ({challenger_recall:.4f}) < Champion ({champion_recall:.4f})",
+            )
 
         min_precision = champion_precision * min_precision_ratio
         if challenger_precision < min_precision:
-            return False, f"Challenger Precision ({challenger_precision:.4f}) < Min required ({min_precision:.4f})"
+            return (
+                False,
+                f"Challenger Precision ({challenger_precision:.4f}) < "
+                f"Min required ({min_precision:.4f})",
+            )
 
         return (
             True,
@@ -140,7 +154,7 @@ class ModelPromoter:
 
 
 def load_metrics_from_file(path: Path) -> dict[str, Any]:
-    with open(path, "r", encoding="utf-8") as handle:
+    with open(path, encoding="utf-8") as handle:
         return json.load(handle)
 
 
