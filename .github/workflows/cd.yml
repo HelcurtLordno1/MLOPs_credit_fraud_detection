@@ -86,10 +86,9 @@ jobs:
         env:
           PYTHONPATH: 'src'
         run: |
-          if dvc repro 2>&1 | grep -q "no remote specified"; then
-            echo "Warning: DVC remote not configured. Using local artifacts only."
+          if ! dvc repro; then
+            echo "Warning: DVC repro failed. Check DVC remote, cache, and credentials."
           fi
-          dvc repro || echo "DVC repro skipped or completed with warnings"
 
   evaluate:
     name: Evaluate Model
