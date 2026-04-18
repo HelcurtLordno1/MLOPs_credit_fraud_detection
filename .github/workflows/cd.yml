@@ -211,19 +211,17 @@ jobs:
           echo "All deployments are healthy"
 
       # -- Step 8: Tag and push verified images to Docker Hub for storage --
-      - name: Push images to Docker Hub
-        if: ${{ secrets.DOCKERHUB_TOKEN != '' && secrets.DOCKERHUB_USERNAME != '' }}
+      - name: Push images to Docker Hub (if credentials exist)
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-          TAG=${{ env.TAG }}
-          REPO="dotuandat199433/mlops_frauddetect"
-          docker tag mlops_frauddetect:api-$TAG $REPO:api-$TAG
-          docker tag mlops_frauddetect:streamlit-$TAG $REPO:streamlit-$TAG
-          docker push $REPO:api-$TAG
-          docker push $REPO:streamlit-$TAG
-          echo "Pushed: $REPO:api-$TAG and $REPO:streamlit-$TAG"
-
-      - name: Skip Docker Hub push (credentials missing)
-        if: ${{ secrets.DOCKERHUB_TOKEN == '' || secrets.DOCKERHUB_USERNAME == '' }}
-        run: |
-          echo "Info: Docker Hub credentials not configured. Skipping image push."
+          if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ] && [ -n "${{ secrets.DOCKERHUB_USERNAME }}" ]; then
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            TAG=${{ env.TAG }}
+            REPO="dotuandat199433/mlops_frauddetect"
+            docker tag mlops_frauddetect:api-$TAG $REPO:api-$TAG
+            docker tag mlops_frauddetect:streamlit-$TAG $REPO:streamlit-$TAG
+            docker push $REPO:api-$TAG
+            docker push $REPO:streamlit-$TAG
+            echo "Pushed: $REPO:api-$TAG and $REPO:streamlit-$TAG"
+          else
+            echo "Info: Docker Hub credentials not configured. Skipping image push."
+          fi

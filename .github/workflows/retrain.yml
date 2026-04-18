@@ -72,9 +72,12 @@ jobs:
 
       - name: Login to Docker Hub
         shell: bash
-        if: ${{ secrets.DOCKERHUB_TOKEN != '' && secrets.DOCKERHUB_USERNAME != '' }}
         run: |
-          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          if [ -n "${{ secrets.DOCKERHUB_TOKEN }}" ] && [ -n "${{ secrets.DOCKERHUB_USERNAME }}" ]; then
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          else
+            echo "Info: Docker Hub credentials not configured. Skipping docker login."
+          fi
 
       - name: Build and Push new API Image
         shell: bash
@@ -106,23 +109,24 @@ jobs:
         uses: azure/setup-kubectl@v4
 
       - name: Configure kubeconfig
-        if: ${{ secrets.KUBECONFIG != '' }}
         run: |
-          mkdir -p "$HOME/.kube"
-          printf '%s' '${{ secrets.KUBECONFIG }}' > "$HOME/.kube/config"
-          chmod 600 "$HOME/.kube/config"
+          if [ -n "${{ secrets.KUBECONFIG }}" ]; then
+            mkdir -p "$HOME/.kube"
+            printf '%s' '${{ secrets.KUBECONFIG }}' > "$HOME/.kube/config"
+            chmod 600 "$HOME/.kube/config"
+          else
+            echo "Info: KUBECONFIG secret not configured. Skipping kubeconfig setup."
+          fi
 
       - name: Deploy updated images to Kubernetes
-        if: ${{ secrets.KUBECONFIG != '' }}
         run: |
-          sed -i "s|image: mlops_frauddetect:api-local|image: $IMAGE_NAME:${{ env.API_TAG }}|g" deployment/k8s/api-deployment.yaml
-          sed -i "s|image: mlops_frauddetect:streamlit-local|image: $IMAGE_NAME:${{ env.STREAMLIT_TAG }}|g" deployment/k8s/streamlit-deployment.yaml
-          kubectl apply -f deployment/k8s/
-          kubectl rollout status deployment/fraud-api --timeout=300s
-          kubectl rollout status deployment/mlflow --timeout=300s
-          kubectl rollout status deployment/streamlit --timeout=300s
-
-      - name: Skip Kubernetes deploy (KUBECONFIG missing)
-        if: ${{ secrets.KUBECONFIG == '' }}
-        run: |
-          echo "Info: KUBECONFIG secret not configured. Skipping Kubernetes deployment."
+          if [ -n "${{ secrets.KUBECONFIG }}" ]; then
+            sed -i "s|image: mlops_frauddetect:api-local|image: $IMAGE_NAME:${{ env.API_TAG }}|g" deployment/k8s/api-deployment.yaml
+            sed -i "s|image: mlops_frauddetect:streamlit-local|image: $IMAGE_NAME:${{ env.STREAMLIT_TAG }}|g" deployment/k8s/streamlit-deployment.yaml
+            kubectl apply -f deployment/k8s/
+            kubectl rollout status deployment/fraud-api --timeout=300s
+            kubectl rollout status deployment/mlflow --timeout=300s
+            kubectl rollout status deployment/streamlit --timeout=300s
+          else
+            echo "Info: KUBECONFIG secret not configured. Skipping Kubernetes deployment."
+          fi
