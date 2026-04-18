@@ -3,15 +3,14 @@
 
 ## 🤝 Team Contribution Table
 
-| Member | Week(s) | Role | Task |
-|--------|--------|------|------|------|
 | Member | MSV | Week(s) | Role | Task |
-| Hồ Đức Mạnh | 11230565 | Week 10 | Data Engineer | DVC data pipeline setup, feature engineering, and stratified split artifacts |
-| Trần Minh Đức | 11230531 | Week 11 | ML Engineer | Model training, MLflow logging, and imbalance-aware model comparison |
-| Đinh Nam Khánh | 11230548 | Week 12 | MLOps Engineer | Evaluation gates, champion/challenger promotion, and drift reporting |
-| Nguyễn Dương Hiếu | 11230535 | Week 13 | Interface Engineer | FastAPI serving, Streamlit dashboard, and API schema alignment |
-| Đỗ Tuấn Đạt | 11230527 | Week 14 | Automation Architect | Container build/deploy flow and CI retraining automation extensions |
-| Khổng Gia Minh | 11230567 | Week 15 | QA & Documentation Lead | Reproducibility checks, final docs polish, and release readiness |
+| :--- | :--- | :--- | :--- | :--- |
+| **Hồ Đức Mạnh** | 11230565 | Week 10 | Data Engineer | DVC data pipeline setup, feature engineering, and stratified split artifacts |
+| **Trần Minh Đức** | 11230531 | Week 11 | ML Engineer | Model training, MLflow logging, and imbalance-aware model comparison |
+| **Đinh Nam Khánh** | 11230548 | Week 12 | MLOps Engineer | Evaluation gates, champion/challenger promotion, and drift reporting |
+| **Nguyễn Dương Hiếu** | 11230535 | Week 13 | Interface Engineer | FastAPI serving, Streamlit dashboard, and API schema alignment |
+| **Đỗ Tuấn Đạt** | 11230527 | Week 14 | Automation Architect | Container build/deploy flow and CI retraining automation extensions |
+| **Khổng Gia Minh** | 11230567 | Week 15 | QA & Documentation Lead | Reproducibility checks, final docs polish, and release readiness |
 
 ---
 
@@ -209,6 +208,69 @@ Check these files:
 - `reports/metrics/test_metrics.json`
 - `models/registry/last_promotion.json`
 - `reports/drift/drift_report.json`
+
+---
+
+## ✅ Run All Commands (End-to-End, Team Standard)
+
+Use this exact sequence when teammates want a full, correct local run from setup to validation.
+
+### 1) Setup environment and dependencies
+```powershell
+git pull origin main
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install --upgrade pip
+pip install -e .[dev]
+$env:PYTHONPATH='src'
+```
+
+### 2) Reproduce full data + model + evaluation + promotion + monitoring pipeline
+```powershell
+python -m dvc pull
+python -m dvc repro prepare
+python -m dvc repro train
+python -m dvc repro evaluate
+python -m dvc repro promote
+python -m dvc repro drift
+python -m dvc repro tune
+python -m dvc status
+```
+
+### 3) Verify quality gates and reproducibility
+```powershell
+pytest -q
+python verify_setup.py
+python -m fraud_detection.cli paths
+```
+
+### 4) Run serving stack (choose one)
+
+Option A (Python processes):
+```powershell
+# Terminal 1 (API)
+.venv\Scripts\activate
+$env:PYTHONPATH='src'
+uvicorn fraud_detection.api.main:app --reload --port 8000
+
+# Terminal 2 (Streamlit)
+.venv\Scripts\activate
+$env:PYTHONPATH='src'
+streamlit run streamlit_app/app.py
+```
+
+Option B (Docker Compose):
+```powershell
+docker-compose up --build
+```
+
+### 5) Quick runtime checks
+```powershell
+Invoke-WebRequest http://localhost:8000/health -UseBasicParsing
+```
+
+API docs: `http://localhost:8000/docs`  
+Dashboard: `http://localhost:8501`
 
 ---
 
@@ -534,5 +596,5 @@ Team lead planning reference: `project_plan.md`.
 
 ---
 
-*Last updated: 2026-04-15*
-*Status: ✅ Weeks 10-13 completed (Data, Training, Evaluation, API, UI, and Containerization verified)*
+*Last updated: 2026-04-19*
+*Status: ✅ Weeks 10-14 completed and CI/CD pipelines are green on main (Data, Training, Evaluation, API, UI, Containerization, and Automation verified)*
