@@ -3,26 +3,27 @@
 
 ## 🤝 Team Contribution Table
 
-| Member | Day | Role | Day Task |
-|--------|-----|------|----------|
-| Member 1 | Day 1 | Data Engineer | DVC data pipeline setup, feature engineering, and stratified split artifacts |
-| Member 2 | Day 2 | ML Engineer | Model training, MLflow logging, and imbalance-aware model comparison |
-| Member 3 | Day 3 | MLOps Engineer | Evaluation gates, champion/challenger promotion, and drift reporting |
-| Member 4 | Day 4 | Interface Engineer | FastAPI serving, Streamlit dashboard, and API schema alignment |
-| Member 5 | Day 5 | Automation Architect | Container build/deploy flow and CI retraining automation extensions |
-| Member 6 | Day 6 | QA & Documentation Lead | Reproducibility checks, final docs polish, and release readiness |
+| Member | Week(s) | Role | Task |
+|--------|--------|------|------|
+| Member 1 | Week 8 | Data Engineer | DVC data pipeline setup, feature engineering, and stratified split artifacts |
+| Member 2 | Week 9 | ML Engineer | Model training, MLflow logging, and imbalance-aware model comparison |
+| Member 3 | Weeks 10-11 | MLOps Engineer | Evaluation gates, champion/challenger promotion, and drift reporting |
+| Member 4 | Week 12 | Interface Engineer | FastAPI serving, Streamlit dashboard, and API schema alignment |
+| Member 5 | Weeks 13-14 | Automation Architect | Container build/deploy flow and CI retraining automation extensions |
+| Member 6 | Week 15 | QA & Documentation Lead | Reproducibility checks, final docs polish, and release readiness |
 
 ---
 
 ## 📌 Project Explanation (From Project Plan)
 
-This repository is designed as a role-based MLOps delivery flow where each day adds one production layer on top of the previous day.
 
-1. Day 0 establishes a clean repository baseline and DVC-first data ownership.
-2. Day 1 builds the data foundation: schema-aware preprocessing, engineered features, and deterministic splits.
-3. Day 2 trains fraud models with class-imbalance handling and logs experiments to MLflow.
-4. Day 3 validates model quality, applies champion/challenger promotion rules, and produces drift analysis artifacts.
-5. Day 4+ extends the system toward API contracts, frontend usability, deployment automation, and final quality assurance.
+This repository is designed as a role-based MLOps delivery flow where each week adds one production layer on top of the previous week.
+
+1. Week 0 establishes a clean repository baseline and DVC-first data ownership.
+2. Week 8 builds the data foundation: schema-aware preprocessing, engineered features, and deterministic splits.
+3. Week 9 trains fraud models with class-imbalance handling and logs experiments to MLflow.
+4. Weeks 10-11 validate model quality, apply champion/challenger promotion rules, and produce drift analysis artifacts.
+5. Week 12+ extends the system toward API contracts, frontend usability, deployment automation, and final quality assurance.
 
 This structure ensures teammates can work in parallel while still sharing one reproducible, audited pipeline.
 
@@ -46,7 +47,7 @@ Imbalance handling in training:
 ### Verified Current State (2026-04-14)
 - Full DVC graph executes through: `prepare -> train -> evaluate -> promote -> drift -> tune`.
 - CLI command surface includes: `prepare`, `paths`, `train`, `evaluate`, `promote`, `drift`, `tune`.
-- Day 1-3 + monitoring artifacts are present:
+- Week 8-11 + monitoring artifacts are present:
    - `reports/metrics/day1_data_summary.json`
    - `reports/metrics/train_metrics.json`
    - `reports/metrics/test_metrics.json`
@@ -210,9 +211,9 @@ Check these files:
 
 ---
 
-## 📅 Three-Day Workflow
+## 📅 Weekly Workflow
 
-### 🔷 Day 1: Data Pipeline & Feature Engineering
+### 🔷 Week 8: Data Pipeline & Feature Engineering
 **Role**: Data Engineer | **Primary notebook**: `notebook/Day1_Data_Pipeline.ipynb`
 
 **Objectives**:
@@ -227,7 +228,7 @@ Check these files:
 3. Build stratified train/validation/test splits (60/10/30).
 4. Persist processed parquet datasets and summary metrics.
 
-**Expected Day 1 artifacts**:
+**Expected Week 8 artifacts**:
 - `data/processed/train.parquet`
 - `data/processed/val.parquet`
 - `data/processed/test.parquet`
@@ -235,7 +236,7 @@ Check these files:
 
 ---
 
-### 🔶 Day 2: Model Training & Bias-Variance Analysis
+### 🔶 Week 9: Model Training & Bias-Variance Analysis
 **Role**: ML Engineer | **Primary notebook**: `notebook/Day2_Model_Training_BiasVariance.ipynb`
 
 **Objectives**:
@@ -245,14 +246,14 @@ Check these files:
 4. Analyze bias-variance behavior across train/validation/test splits.
 5. Log experiments and parameters to MLflow.
 
-**Expected Day 2 artifacts**:
+**Expected Week 9 artifacts**:
 - `models/trained/best_model.joblib`
 - `reports/metrics/train_metrics.json`
 - `mlruns/` experiment tracking records
 
 ---
 
-### 🔹 Day 3: Evaluation, Promotion, and Monitoring
+### 🔹 Weeks 10-11: Evaluation, Promotion, and Monitoring
 **Role**: MLOps Engineer | **Primary notebook**: `notebook/Day3_Evaluation_Promotion.ipynb`
 
 **Objectives**:
@@ -270,14 +271,14 @@ THEN promote challenger
 ELSE keep champion and request iteration
 ```
 
-**Expected Day 3 artifacts**:
+**Expected Weeks 10-11 artifacts**:
 - `reports/metrics/test_metrics.json`
 - `models/registry/last_promotion.json`
 - `reports/drift/drift_report.json`
 
 ---
 
-### 🟢 Day 4: API, UI, and Containerization (Task 4)
+### 🟢 Week 12: API, UI, and Containerization (Task 4)
 **Role**: Interface Engineer | **Focus**: Serving the champion model
 
 **Objectives**:
@@ -354,11 +355,11 @@ minikube service fraud-api-service --url
 
 ---
 
-### 🟣 Day 5: Automation Architect (Task 5)
+### 🟣 Weeks 13-14: Automation Architect (Task 5)
 **Role**: DevOps / MLOps Infrastructure Architect  
 **Goal**: Run retraining + container build + Kubernetes rollout as one smooth workflow.
 
-**Day 5 objectives**:
+**Weeks 13-14 objectives**:
 1. Build production-ready API and Streamlit images.
 2. Deploy full stack manifests in `k8s/` with stable runtime behavior.
 3. Automate retrain + deploy in GitHub Actions (`.github/workflows/retrain.yml`).
@@ -375,7 +376,7 @@ Expected output:
 - All commands return versions.
 - If `minikube` is missing, use Kind path below.
 
-#### 2) Build local images (Day 4 + Day 5 bridge)
+#### 2) Build local images (Week 12 + Weeks 13-14 bridge)
 ```powershell
 docker build -t mlops_frauddetect:api-local .
 docker build -t mlops_frauddetect:streamlit-local -f streamlit_app/Dockerfile .
@@ -465,7 +466,7 @@ Required GitHub Secrets:
 - `DOCKERHUB_TOKEN`
 - `KUBECONFIG` (raw kubeconfig YAML or base64)
 
-#### 8) Quick troubleshooting (Day 5)
+#### 8) Quick troubleshooting (Weeks 13-14)
 1. API starts but model not loaded:
    - Rebuild API image; runtime now includes `libgomp1` required by LightGBM.
 2. `ImagePullBackOff` on `fraud-api`:
@@ -474,7 +475,7 @@ Required GitHub Secrets:
 3. MLflow restarts (`OOMKilled`):
    - Check `kubectl describe pod -l app=mlflow`; current manifest runs 1 worker with higher memory budget.
 
-#### 9) Day 5 expected deliverables checklist
+#### 9) Weeks 13-14 expected deliverables checklist
 - Optimized multi-stage Dockerfile working for model load.
 - Kubernetes manifests in `k8s/` deployed successfully.
 - CI retrain + deploy workflow implemented and runnable.
@@ -533,4 +534,4 @@ Team lead planning reference: `project_plan.md`.
 ---
 
 *Last updated: 2026-04-15*
-*Status: ✅ Days 1-4 completed (Data, Training, Evaluation, API, UI, and Containerization verified)*
+*Status: ✅ Weeks 8-12 completed (Data, Training, Evaluation, API, UI, and Containerization verified)*
