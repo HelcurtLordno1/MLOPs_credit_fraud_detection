@@ -32,10 +32,16 @@ jobs:
       - name: Pull DVC data & artifacts
         run: |
           if [ -n "${{ secrets.DAGSHUB_USERNAME }}" ] && [ -n "${{ secrets.DAGSHUB_TOKEN }}" ]; then
-            dvc remote modify storage --local auth basic
-            dvc remote modify storage --local user ${{ secrets.DAGSHUB_USERNAME }}
-            dvc remote modify storage --local password ${{ secrets.DAGSHUB_TOKEN }}
-            dvc pull
+            if dvc remote list | grep -q '^storage'; then
+              dvc remote modify storage --local auth basic || true
+              dvc remote modify storage --local user ${{ secrets.DAGSHUB_USERNAME }} || true
+              dvc remote modify storage --local password ${{ secrets.DAGSHUB_TOKEN }} || true
+              if ! dvc pull; then
+                echo "Warning: dvc pull failed. Continuing with repository data."
+              fi
+            else
+              echo "Warning: DVC remote 'storage' not found. Continuing with repository data."
+            fi
           else
             echo "Info: DAGsHub secrets not configured. Skipping dvc pull and using repository data."
           fi
