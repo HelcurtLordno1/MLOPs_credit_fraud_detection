@@ -84,7 +84,7 @@ jobs:
       - name: Apply Kubernetes manifests
         shell: bash
         run: |
-          kubectl apply -f k8s/
+          kubectl apply -f deployment/k8s/
 
       - name: Update image tags in deployment
         shell: bash

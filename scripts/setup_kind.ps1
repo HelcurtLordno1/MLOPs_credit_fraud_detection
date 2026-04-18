@@ -56,6 +56,6 @@ Write-Host "=== Setup complete! ===" -ForegroundColor Cyan
 Write-Host "Next steps:"
 Write-Host "  1. Build images : docker build -t mlops_frauddetect:api-local ."
 Write-Host "  2. Load images  : kind load docker-image mlops_frauddetect:api-local --name mlops-cluster"
-Write-Host "  3. Deploy       : kubectl apply -f k8s/"
+Write-Host "  3. Deploy       : kubectl apply -f deployment/k8s/"
 Write-Host "  4. Access API   : kubectl port-forward svc/fraud-api-service 8000:8000"
 Write-Host "  5. Access UI    : kubectl port-forward svc/streamlit-service 8501:8501"

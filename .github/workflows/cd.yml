@@ -145,9 +145,9 @@ jobs:
       # -- Step 6: Patch manifests with the new tag and apply to Kind --
       - name: Deploy to Kind cluster
         run: |
-          sed -i "s|image: mlops_frauddetect:api-local|image: mlops_frauddetect:api-${{ env.TAG }}|g" k8s/api-deployment.yaml
-          sed -i "s|image: mlops_frauddetect:streamlit-local|image: mlops_frauddetect:streamlit-${{ env.TAG }}|g" k8s/streamlit-deployment.yaml
-          kubectl apply -f k8s/
+          sed -i "s|image: mlops_frauddetect:api-local|image: mlops_frauddetect:api-${{ env.TAG }}|g" deployment/k8s/api-deployment.yaml
+          sed -i "s|image: mlops_frauddetect:streamlit-local|image: mlops_frauddetect:streamlit-${{ env.TAG }}|g" deployment/k8s/streamlit-deployment.yaml
+          kubectl apply -f deployment/k8s/
 
       # -- Step 7: Wait for rollout and verify all pods are healthy --
       - name: Verify deployment health
