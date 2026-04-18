@@ -4,13 +4,14 @@
 ## 🤝 Team Contribution Table
 
 | Member | Week(s) | Role | Task |
-|--------|--------|------|------|
-| Hồ Đức Mạnh | Week 10 | Data Engineer | DVC data pipeline setup, feature engineering, and stratified split artifacts |
-| Trần Minh Đức | Week 11 | ML Engineer | Model training, MLflow logging, and imbalance-aware model comparison |
-| Đinh Nam Khánh | Week 12 | MLOps Engineer | Evaluation gates, champion/challenger promotion, and drift reporting |
-| Nguyễn Dương Hiếu | Week 13 | Interface Engineer | FastAPI serving, Streamlit dashboard, and API schema alignment |
-| Đỗ Tuấn Đạt | Week 14 | Automation Architect | Container build/deploy flow and CI retraining automation extensions |
-| Khổng Gia Minh | Week 15 | QA & Documentation Lead | Reproducibility checks, final docs polish, and release readiness |
+|--------|--------|------|------|------|
+| Member | MSV | Week(s) | Role | Task |
+| Hồ Đức Mạnh | 11230565 | Week 10 | Data Engineer | DVC data pipeline setup, feature engineering, and stratified split artifacts |
+| Trần Minh Đức | 11230531 | Week 11 | ML Engineer | Model training, MLflow logging, and imbalance-aware model comparison |
+| Đinh Nam Khánh | 11230548 | Week 12 | MLOps Engineer | Evaluation gates, champion/challenger promotion, and drift reporting |
+| Nguyễn Dương Hiếu | 11230535 | Week 13 | Interface Engineer | FastAPI serving, Streamlit dashboard, and API schema alignment |
+| Đỗ Tuấn Đạt | 11230527 | Week 14 | Automation Architect | Container build/deploy flow and CI retraining automation extensions |
+| Khổng Gia Minh | 11230567 | Week 15 | QA & Documentation Lead | Reproducibility checks, final docs polish, and release readiness |
 
 ---
 
@@ -285,7 +286,7 @@ ELSE keep champion and request iteration
 1. Implement a FastAPI inference service (`src/fraud_detection/api/`) simulating production.
 2. Build an interactive Streamlit Operations Dashboard (`streamlit_app/app.py`).
 3. Containerize the full stack using `Dockerfile` and `docker-compose.yaml` (MLflow + API + Streamlit).
-4. Prepare Kubernetes YAML manifests (`k8s/`) for deployments and services.
+4. Prepare Kubernetes YAML manifests (`deployment/k8s/`) for deployments and services.
 5. **Future Readiness**: The drift tracking module (`src/fraud_detection/monitoring/drift.py`) has been formatted with JSON Logging, allowing it to natively run as a Kubernetes CronJob in the future, smoothly pushing metrics to cloud platforms (like Datadog, Stackdriver, or Cloudwatch).
 
 **Docker Hub Repository**: 🐳 [dotuandat199433/mlops_frauddetect](https://hub.docker.com/repository/docker/dotuandat199433/mlops_frauddetect/general)
@@ -334,7 +335,7 @@ kind load docker-image mlops_frauddetect:api-local --name mlops-cluster
 kind load docker-image mlops_frauddetect:streamlit-local --name mlops-cluster
 
 # Deploy
-kubectl apply -f k8s/
+kubectl apply -f deployment/k8s/
 
 # Access services (open in separate terminals)
 kubectl port-forward svc/fraud-api-service 8000:8000
@@ -347,7 +348,7 @@ kubectl port-forward svc/streamlit-service 8501:8501
 **Option 4: Kubernetes (Minikube)**
 ```powershell
 minikube start
-kubectl apply -f k8s/
+kubectl apply -f deployment/k8s/
 kubectl get pods
 # Lấy URL kết nối API (NodePort)
 minikube service fraud-api-service --url
@@ -361,7 +362,7 @@ minikube service fraud-api-service --url
 
 **Week 14 objectives**:
 1. Build production-ready API and Streamlit images.
-2. Deploy full stack manifests in `k8s/` with stable runtime behavior.
+2. Deploy full stack manifests in `deployment/k8s/` with stable runtime behavior.
 3. Automate retrain + deploy in GitHub Actions (`.github/workflows/retrain.yml`).
 4. Validate rollout health and prediction endpoint after deployment.
 
@@ -395,7 +396,7 @@ kind load docker-image mlops_frauddetect:api-local --name mlops-cluster
 kind load docker-image mlops_frauddetect:streamlit-local --name mlops-cluster
 
 # apply manifests
-kubectl apply -f k8s/
+kubectl apply -f deployment/k8s/
 kubectl get deploy,svc,pods
 ```
 
@@ -408,7 +409,7 @@ Expected output:
 #### 4) Minikube deployment path (alternative)
 ```powershell
 minikube start
-kubectl apply -f k8s/
+kubectl apply -f deployment/k8s/
 kubectl get pods
 minikube service fraud-api-service --url
 ```
@@ -457,7 +458,7 @@ Pipeline now performs:
 3. Build and push API + Streamlit images (SHA and latest tags).
 4. Install `kubectl`.
 5. Authenticate cluster using `KUBECONFIG` secret.
-6. Apply `k8s/` manifests.
+6. Apply `deployment/k8s/` manifests.
 7. Restart and verify rollout for API, MLflow, Streamlit.
 
 Required GitHub Secrets:
@@ -477,7 +478,7 @@ Required GitHub Secrets:
 
 #### 9) Week 14 expected deliverables checklist
 - Optimized multi-stage Dockerfile working for model load.
-- Kubernetes manifests in `k8s/` deployed successfully.
+- Kubernetes manifests in `deployment/k8s/` deployed successfully.
 - CI retrain + deploy workflow implemented and runnable.
 - Local cluster verification evidence (Kind or Minikube) with successful health/predict checks.
 

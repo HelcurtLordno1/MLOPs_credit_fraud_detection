@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from fraud_detection.api.main import app, service
 from fraud_detection.api.schemas import Transaction
@@ -107,5 +108,5 @@ class TestTransactionSchema:
     def test_invalid_state_rejected(self) -> None:
         payload = default_transaction_payload()
         payload["state"] = "XYZ"
-        with pytest.raises(Exception):
+        with pytest.raises(ValidationError):
             Transaction(**payload)

@@ -4,7 +4,6 @@ import joblib
 import pandas as pd
 import pytest
 
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -18,8 +17,8 @@ def test_processed_data_has_target_column():
         pytest.skip("Processed test data not found. Run data prep first.")
 
     df = pd.read_parquet(test_path)
-    assert "Class" in df.columns
-    assert set(df["Class"].unique()).issubset({0, 1})
+    assert "is_fraud" in df.columns
+    assert set(df["is_fraud"].unique()).issubset({0, 1})
 
 
 def test_model_predict_proba_range_if_model_exists():
@@ -31,7 +30,7 @@ def test_model_predict_proba_range_if_model_exists():
 
     model = joblib.load(model_path)
     df = pd.read_parquet(data_path)
-    X = df.drop(columns=["Class", "Time"], errors="ignore")
+    X = df.drop(columns=["is_fraud"], errors="ignore")
 
     scores = model.predict_proba(X)[:, 1]
     assert (scores >= 0).all()
