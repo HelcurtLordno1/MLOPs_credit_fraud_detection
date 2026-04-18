@@ -1,11 +1,11 @@
 🛠️ Global Context & Pre-Configuration (Team Lead - Week 0)
-Before Week 8 begins, the Team Lead (or you) must perform the Repository Reset. This ensures the new work does not carry over the old Git history from the baseline project.
+Before Week 10 begins, the Team Lead (or you) must perform the Repository Reset. This ensures the new work does not carry over the old Git history from the baseline project.
 Clone & Clean: Clone hoducmanh222/fraud-detection locally. Delete the .git folder.
 Initialize New Repo: git init, commit all files as "Initial baseline structure".
 Push to Main Repo: Push this clean state to your HelcurtLordno1/MLOPs_credit_fraud_detection repository.
 Data Preparation: Download the new dataset (fraudTrain.csv) and place it inside data/raw/. Do not commit this file; DVC will handle it.
 
-📅 Week 8: Member 1 (The Foundation Builder) - ghi thêm README
+📅 Week 10: Member 1 (The Foundation Builder) - ghi thêm README
 Role: Data Engineer & Pipeline Architect
 Core Task: Establish the DVC pipeline for the new dataset and adapt the data processing layer.
 This is the most critical week. If this fails, the rest of the team cannot work. You are creating the "fuel" for the ML engine.
@@ -33,7 +33,7 @@ git commit -m "feat: DVC pipeline setup and data preparation for new dataset"
 dvc push
 git push
 
-📅 Week 9: Member 2 (The Model Trainer)
+📅 Week 11: Member 2 (The Model Trainer)
 Role: ML Engineer (Training & Experimentation)
 Core Task: Modify src/fraud_detection/modeling/train.py to work with the new features and log experiments to MLflow.
 You are taking the data prepared by Member 1 and building the intelligence of the system.
@@ -57,7 +57,7 @@ Commit: Updated src/fraud_detection/modeling/train.py.
 Data: Updated dvc.lock (reflecting the new model artifact).
 MLflow Run ID: Note the run ID of the newly trained model for the next member.
 
-📅 Weeks 10-11: Member 3 (The Quality Gatekeeper)
+📅 Week 12: Member 3 (The Quality Gatekeeper)
 Role: MLOps Engineer (Evaluation & Promotion)
 Core Task: Adapt evaluation metrics and implement the promotion logic in monitoring/promotion.py.
 You are the bridge between a "trained model" and a "deployed model." You decide if the model is safe to use.
@@ -76,7 +76,7 @@ File: dvc.yaml
 Action: Ensure the evaluate stage depends on the train output. Ensure the promote stage depends on evaluate output.
 Run: dvc repro evaluate -> dvc repro promote.
 
-📅 Week 12: Member 4 (The Interface Engineer)
+📅 Week 13: Member 4 (The Interface Engineer)
 Role: API & Frontend Developer
 Core Task: Fix the FastAPI schema and ensure the Streamlit UI works with the new data structure.
 Members 1-3 built the engine. You are building the steering wheel and dashboard.
@@ -113,7 +113,7 @@ Verification: Write a small test script to hit the /predict endpoint locally wit
 3. Streamlit UI Check: src/streamlit_app/app.py
 Action: Update the input fields in the Streamlit sidebar to match the new Transaction schema. You might need to add text inputs for merchant, category, job, etc.
 
-📅 Weeks 13-14: Member 5 (The Automation Architect)
+📅 Week 14: Member 5 (The Automation Architect)
 Role: DevOps/MLOps Infrastructure Architect
 Core Task: Containerize the full stack, create Kubernetes deployment manifests, and automate retraining & rollout.
 Goal: The system is no longer just Docker Compose—it's a cloud‑native, Kubernetes‑ready ML application.
