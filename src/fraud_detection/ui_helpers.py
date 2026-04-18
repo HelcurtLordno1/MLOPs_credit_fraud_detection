@@ -3,6 +3,7 @@
 Provides default payloads, local report loading, and CSV parsing
 for the Fraud Detection Operations Dashboard.
 """
+
 from __future__ import annotations
 
 import json

@@ -3,6 +3,7 @@
 Defines request/response models aligned with the Kaggle Credit Card
 Fraud Detection dataset (fraudTrain.csv / fraudTest.csv).
 """
+
 from __future__ import annotations
 
 from pydantic import BaseModel, Field

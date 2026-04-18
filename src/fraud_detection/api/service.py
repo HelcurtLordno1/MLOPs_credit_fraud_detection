@@ -5,6 +5,7 @@ The preprocessing must produce the **exact same numeric feature set** that
 the training pipeline (``features.py`` → ``train.py:prepare_features()``)
 produces, but from a single raw transaction JSON rather than a full DataFrame.
 """
+
 from __future__ import annotations
 
 import json
@@ -21,7 +22,6 @@ from fraud_detection.data.features import (
     engineer_amount_features,
     engineer_distance_features,
     engineer_temporal_features,
-    get_feature_names,
 )
 from fraud_detection.utils.paths import find_project_root
 
@@ -176,9 +176,9 @@ class FraudDetectionService:
         #  Temporal features -----------------------------------------------
         # Supply trans_date_trans_time from unix_time so temporal helpers work.
         if "trans_date_trans_time" not in raw.columns and "unix_time" in raw.columns:
-            raw["trans_date_trans_time"] = pd.to_datetime(
-                raw["unix_time"], unit="s"
-            ).dt.strftime("%Y-%m-%d %H:%M:%S")
+            raw["trans_date_trans_time"] = pd.to_datetime(raw["unix_time"], unit="s").dt.strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
 
         raw = engineer_temporal_features(raw)
 
@@ -224,9 +224,7 @@ class FraudDetectionService:
             "threshold": self.threshold,
         }
 
-    def predict_batch(
-        self, transactions: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    def predict_batch(self, transactions: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Score a list of transactions."""
         return [self.predict(txn) for txn in transactions]
 

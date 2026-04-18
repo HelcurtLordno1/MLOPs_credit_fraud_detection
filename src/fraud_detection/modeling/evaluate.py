@@ -1,4 +1,5 @@
 """Model evaluation for fraud detection."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -23,17 +24,17 @@ def compute_metrics(
 ) -> dict[str, float]:
     """
     Compute evaluation metrics for binary classification.
-    
+
     Args:
         y_true: True binary labels
         y_prob: Predicted probabilities for positive class
         threshold: Decision threshold
-        
+
     Returns:
         Dictionary of metrics
     """
     y_pred = (y_prob >= threshold).astype(int)
-    
+
     return {
         "auc_roc": float(roc_auc_score(y_true, y_prob)),
         "auprc": float(average_precision_score(y_true, y_prob)),
@@ -55,19 +56,19 @@ def evaluate_model(
 ) -> dict[str, dict[str, float]]:
     """
     Evaluate model on train, validation, and test sets.
-    
+
     Args:
         model: Trained model with predict_proba
         X_train, y_train: Training data
         X_val, y_val: Validation data
         X_test, y_test: Test data
         threshold: Decision threshold
-        
+
     Returns:
         Dictionary mapping split names to metrics
     """
     results = {}
-    
+
     for split_name, X, y in [
         ("train", X_train, y_train),
         ("val", X_val, y_val),
@@ -75,7 +76,7 @@ def evaluate_model(
     ]:
         y_prob = model.predict_proba(X)[:, 1]
         results[split_name] = compute_metrics(y, y_prob, threshold)
-    
+
     return results
 
 
@@ -85,18 +86,18 @@ def analyze_bias_variance(
 ) -> dict[str, Any]:
     """
     Analyze bias-variance tradeoff.
-    
+
     Args:
         results: Dictionary from evaluate_model
         metric: Metric to analyze (default: auprc - best for imbalanced)
-        
+
     Returns:
         Dictionary with bias-variance analysis
     """
     train_val_gap = abs(results["train"][metric] - results["val"][metric])
     train_test_gap = abs(results["train"][metric] - results["test"][metric])
     val_test_gap = abs(results["val"][metric] - results["test"][metric])
-    
+
     # Diagnosis
     if results["train"][metric] < 0.5:
         diagnosis = "HIGH BIAS (Underfitting)"
@@ -106,7 +107,7 @@ def analyze_bias_variance(
         diagnosis = "MODERATE VARIANCE"
     else:
         diagnosis = "GOOD FIT"
-    
+
     return {
         f"train_{metric}": results["train"][metric],
         f"val_{metric}": results["val"][metric],
@@ -126,19 +127,19 @@ def get_classification_report(
 ) -> str:
     """
     Get detailed classification report.
-    
+
     Args:
         model: Trained model
         X_test: Test features
         y_test: Test target
         threshold: Decision threshold
-        
+
     Returns:
         Classification report as string
     """
     y_prob = model.predict_proba(X_test)[:, 1]
     y_pred = (y_prob >= threshold).astype(int)
-    
+
     return classification_report(
         y_test,
         y_pred,
@@ -155,17 +156,17 @@ def get_confusion_matrix(
 ) -> np.ndarray:
     """
     Get confusion matrix.
-    
+
     Args:
         model: Trained model
         X_test: Test features
         y_test: Test target
         threshold: Decision threshold
-        
+
     Returns:
         Confusion matrix as numpy array
     """
     y_prob = model.predict_proba(X_test)[:, 1]
     y_pred = (y_prob >= threshold).astype(int)
-    
+
     return confusion_matrix(y_test, y_pred)

@@ -11,6 +11,8 @@ import mlflow
 import mlflow.sklearn
 import pandas as pd
 
+from fraud_detection.data.features import engineer_all_features
+from fraud_detection.data.pipeline import create_train_val_test_splits, load_splits
 from fraud_detection.data.schema import (
     INDEX_COLUMN,
     SOURCE_COLUMNS,
@@ -19,10 +21,12 @@ from fraud_detection.data.schema import (
     build_read_dtypes,
     validate_dataset,
 )
-from fraud_detection.data.features import engineer_all_features
-from fraud_detection.data.pipeline import create_train_val_test_splits, load_splits
 from fraud_detection.modeling.evaluate import analyze_bias_variance, compute_metrics, evaluate_model
-from fraud_detection.modeling.train import prepare_features, train_lightgbm, train_logistic_regression
+from fraud_detection.modeling.train import (
+    prepare_features,
+    train_lightgbm,
+    train_logistic_regression,
+)
 from fraud_detection.utils.paths import ensure_dirs, find_project_root
 
 try:
@@ -177,7 +181,12 @@ def _load_raw_sources(project_root: Path, data_cfg: dict[str, Any]) -> pd.DataFr
 
     frames: list[pd.DataFrame] = []
     for csv_path in source_paths:
-        frame = read_dataset(csv_path=csv_path, sample_rows=None if data_cfg.get("sample_rows") is None else int(data_cfg.get("sample_rows")))
+        frame = read_dataset(
+            csv_path=csv_path,
+            sample_rows=None
+            if data_cfg.get("sample_rows") is None
+            else int(data_cfg.get("sample_rows")),
+        )
         frames.append(frame)
     return pd.concat(frames, ignore_index=True)
 
@@ -214,7 +223,10 @@ def prepare_pipeline_datasets(sample_rows: int | None = None) -> dict[str, Any]:
         "original_features": int(len(combined.columns) - 1),
         "engineered_features": int(engineered.shape[1]),
         "splits": {
-            "train": {"rows": int(len(train_df)), "fraud_rate": float(train_df[TARGET_COLUMN].mean())},
+            "train": {
+                "rows": int(len(train_df)),
+                "fraud_rate": float(train_df[TARGET_COLUMN].mean()),
+            },
             "val": {"rows": int(len(val_df)), "fraud_rate": float(val_df[TARGET_COLUMN].mean())},
             "test": {"rows": int(len(test_df)), "fraud_rate": float(test_df[TARGET_COLUMN].mean())},
         },
@@ -229,7 +241,9 @@ def prepare_pipeline_datasets(sample_rows: int | None = None) -> dict[str, Any]:
     return summary
 
 
-def _load_processed_splits(project_root: Path, data_cfg: dict[str, Any]) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def _load_processed_splits(
+    project_root: Path, data_cfg: dict[str, Any]
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     processed_dir = project_root / str(data_cfg.get("processed_dir", "data/processed"))
     return load_splits(processed_dir)
 
@@ -240,9 +254,15 @@ def train_pipeline() -> dict[str, Any]:
     train_cfg = load_train_config()
 
     train_df, val_df, test_df = _load_processed_splits(project_root, data_cfg)
-    X_train, y_train = prepare_features(train_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN)))
-    X_val, y_val = prepare_features(val_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN)))
-    X_test, y_test = prepare_features(test_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN)))
+    X_train, y_train = prepare_features(
+        train_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN))
+    )
+    X_val, y_val = prepare_features(
+        val_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN))
+    )
+    X_test, y_test = prepare_features(
+        test_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN))
+    )
 
     logistic_params = train_cfg["model"]["logistic"]
     lightgbm_params = train_cfg["model"]["lightgbm"]
@@ -274,7 +294,10 @@ def train_pipeline() -> dict[str, Any]:
                 probabilities = model.predict_proba(X)[:, 1]
                 split_results[split_name] = compute_metrics(y, probabilities, threshold=0.5)
                 for metric_name, metric_value in split_results[split_name].items():
-                    mlflow.log_metric(f"{model_name.lower().replace(' ', '_')}_{split_name}_{metric_name}", metric_value)
+                    mlflow.log_metric(
+                        f"{model_name.lower().replace(' ', '_')}_{split_name}_{metric_name}",
+                        metric_value,
+                    )
 
             all_results[model_name] = split_results
             val_auprc = split_results["val"]["auprc"]
@@ -327,9 +350,15 @@ def evaluate_pipeline() -> dict[str, Any]:
     model_path = project_root / "models" / "trained" / "best_model.joblib"
     model = joblib.load(model_path)
 
-    X_train, y_train = prepare_features(train_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN)))
-    X_val, y_val = prepare_features(val_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN)))
-    X_test, y_test = prepare_features(test_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN)))
+    X_train, y_train = prepare_features(
+        train_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN))
+    )
+    X_val, y_val = prepare_features(
+        val_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN))
+    )
+    X_test, y_test = prepare_features(
+        test_df, target_col=str(data_cfg.get("target_column", TARGET_COLUMN))
+    )
 
     results = evaluate_model(model, X_train, y_train, X_val, y_val, X_test, y_test)
     bias_variance = analyze_bias_variance(results, metric="auprc")
@@ -367,7 +396,9 @@ def promote_pipeline() -> dict[str, Any]:
         registry_uri=train_cfg["experiment"].get("registry_uri"),
     )
     challenger_metrics = train_metrics["results"][train_metrics["best_model"]]["val"]
-    champion_metrics = promoter.load_champion_metrics(train_cfg["experiment"].get("registered_model_name", "fraud-detector"))
+    champion_metrics = promoter.load_champion_metrics(
+        train_cfg["experiment"].get("registered_model_name", "fraud-detector")
+    )
 
     should_promote, reason = promoter.should_promote(
         challenger_metrics=challenger_metrics,
@@ -539,9 +570,7 @@ def show_paths() -> dict[str, str]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Run the fraud detection MLOps pipeline."
-    )
+    parser = argparse.ArgumentParser(description="Run the fraud detection MLOps pipeline.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     prepare = subparsers.add_parser(
@@ -561,7 +590,9 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers.add_parser("evaluate", help="Evaluate the saved model on train/val/test splits")
     subparsers.add_parser("promote", help="Compare challenger vs champion and promote if approved")
     subparsers.add_parser("drift", help="Run feature/target drift monitoring and write report")
-    tune = subparsers.add_parser("tune", help="Run Day 4 hyperparameter tuning and save tuning artifacts")
+    tune = subparsers.add_parser(
+        "tune", help="Run Day 4 hyperparameter tuning and save tuning artifacts"
+    )
     tune.add_argument("--n-trials", type=int, default=15, help="Optuna trials per model")
     return parser
 

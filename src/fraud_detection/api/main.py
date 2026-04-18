@@ -8,6 +8,7 @@ Endpoints:
 - POST /api/v1/predict/batch — Score multiple transactions
 - GET  /metrics         — Prometheus metrics
 """
+
 from __future__ import annotations
 
 import logging
