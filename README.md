@@ -5,12 +5,12 @@
 
 | Member | Week(s) | Role | Task |
 |--------|--------|------|------|
-| Member 1 | Week 10 | Data Engineer | DVC data pipeline setup, feature engineering, and stratified split artifacts |
-| Member 2 | Week 11 | ML Engineer | Model training, MLflow logging, and imbalance-aware model comparison |
-| Member 3 | Week 12 | MLOps Engineer | Evaluation gates, champion/challenger promotion, and drift reporting |
-| Member 4 | Week 13 | Interface Engineer | FastAPI serving, Streamlit dashboard, and API schema alignment |
-| Member 5 | Week 14 | Automation Architect | Container build/deploy flow and CI retraining automation extensions |
-| Member 6 | Week 15 | QA & Documentation Lead | Reproducibility checks, final docs polish, and release readiness |
+| Hồ Đức Mạnh | Week 10 | Data Engineer | DVC data pipeline setup, feature engineering, and stratified split artifacts |
+| Trần Minh Đức | Week 11 | ML Engineer | Model training, MLflow logging, and imbalance-aware model comparison |
+| Đinh Nam Khánh | Week 12 | MLOps Engineer | Evaluation gates, champion/challenger promotion, and drift reporting |
+| Nguyễn Dương Hiếu | Week 13 | Interface Engineer | FastAPI serving, Streamlit dashboard, and API schema alignment |
+| Đỗ Tuấn Đạt | Week 14 | Automation Architect | Container build/deploy flow and CI retraining automation extensions |
+| Khổng Gia Minh | Week 15 | QA & Documentation Lead | Reproducibility checks, final docs polish, and release readiness |
 
 ---
 
