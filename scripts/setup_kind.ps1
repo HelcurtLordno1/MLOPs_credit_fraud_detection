@@ -27,11 +27,19 @@ Write-Host "      $kindVer" -ForegroundColor Green
 
 # ── 2. Verify kubectl (already bundled with Docker Desktop) ───────────────────
 Write-Host "[2/4] Checking kubectl..."
+if (-not (Get-Command kubectl -ErrorAction SilentlyContinue)) {
+    Write-Warning "kubectl not found. Install Docker Desktop or download from https://dl.k8s.io/release"
+    exit 1
+}
+
 try {
-    $kubectlVer = & kubectl version --client --short 2>$null
+    $kubectlVer = & kubectl version --client 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "kubectl version command failed"
+    }
     Write-Host "      $kubectlVer" -ForegroundColor Green
 } catch {
-    Write-Warning "kubectl not found. Install Docker Desktop or download from https://dl.k8s.io/release"
+    Write-Warning "kubectl is installed but could not report version. Check your kubectl installation/context."
     exit 1
 }
 
@@ -43,13 +51,25 @@ if ($clusterExists) {
 } else {
     $configPath = "$PSScriptRoot\..\kind-config.yaml"
     & kind create cluster --name mlops-cluster --config $configPath
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Kind cluster creation failed. Ensure Docker Desktop engine is running."
+        exit 1
+    }
     Write-Host "      Cluster created successfully." -ForegroundColor Green
 }
 
 # ── 4. Switch kubectl context ─────────────────────────────────────────────────
 Write-Host "[4/4] Switching kubectl context to kind-mlops-cluster..."
 & kubectl config use-context kind-mlops-cluster
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to switch kubectl context to kind-mlops-cluster."
+    exit 1
+}
 & kubectl get nodes
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to query cluster nodes."
+    exit 1
+}
 
 Write-Host ""
 Write-Host "=== Setup complete! ===" -ForegroundColor Cyan

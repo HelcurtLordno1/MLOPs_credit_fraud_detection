@@ -1,11 +1,11 @@
 {
   "best_model": "LightGBM",
   "best_val_auprc": 0.9509858174274052,
-  "best_run_id": "042c0650f22b45b896ddd92a122bfa9a",
+  "best_run_id": "92c2a57d7c1d4799824c67696318157f",
   "results": {
     "Logistic Regression": {
       "train": {
-        "auc_roc": 0.9023060661969655,
+        "auc_roc": 0.9023060661969654,
         "auprc": 0.28028469715010945,
         "recall": 0.7933688573120189,
         "precision": 0.053213140468791886,

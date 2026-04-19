@@ -77,6 +77,14 @@ class ModelPromoter:
         model_name: str,
         stage: str = "Production",
     ) -> Optional[dict[str, float]]:
+        # Prefer alias-based champion lookup for MLflow 3.x compatibility.
+        try:
+            champion = self.client.get_model_version_by_alias(model_name, "champion")
+            if champion and getattr(champion, "run_id", None):
+                return self._normalize_for_promotion(self.load_run_metrics(champion.run_id))
+        except Exception:
+            pass
+
         try:
             versions = self.client.get_latest_versions(model_name, stages=[stage])
         except Exception:
@@ -96,21 +104,46 @@ class ModelPromoter:
         stage: str = "Production",
     ) -> dict[str, Any]:
         model_uri = f"runs:/{run_id}/model"
+        warning: Optional[str] = None
         try:
             mv = mlflow.register_model(model_uri, model_name)
         except mlflow.exceptions.MlflowException:
             versions = self.client.get_latest_versions(model_name)
             mv = versions[0] if versions else None
 
+        transitioned = False
         if mv:
-            self.client.transition_model_version_stage(
-                model_name,
-                mv.version,
-                stage,
-                archive_existing_versions=(stage == "Production"),
-            )
+            # MLflow file-store can fail to serialize stage transitions in some versions.
+            # Keep promotion resilient by falling back to aliases.
+            try:
+                self.client.transition_model_version_stage(
+                    model_name,
+                    mv.version,
+                    stage,
+                    archive_existing_versions=(stage == "Production"),
+                )
+                transitioned = True
+            except Exception as exc:
+                warning = f"stage-transition-skipped: {exc}"
 
-        return {"model_name": model_name, "version": mv.version if mv else None, "stage": stage}
+            if stage == "Production":
+                try:
+                    self.client.set_registered_model_alias(
+                        name=model_name,
+                        alias="champion",
+                        version=mv.version,
+                    )
+                except Exception as exc:
+                    alias_warning = f"alias-update-failed: {exc}"
+                    warning = f"{warning}; {alias_warning}" if warning else alias_warning
+
+        return {
+            "model_name": model_name,
+            "version": mv.version if mv else None,
+            "stage": stage,
+            "transitioned": transitioned,
+            "warning": warning,
+        }
 
     def should_promote(
         self,
