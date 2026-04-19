@@ -118,6 +118,13 @@ pip install -r requirements.txt
 ```
 
 ### Step 4: Pull DVC-tracked data/artifacts from remote
+Set up authentication for your remote (You must have a dagshub account, register at https://dagshub.com to get username and password)
+```powershell
+dvc remote modify storage --local auth basic
+dvc remote modify storage --local user <your_username>
+dvc remote modify storage --local password <your_token>
+```
+Pull the data
 ```powershell
 python -m dvc pull
 ```
@@ -272,9 +279,6 @@ Invoke-WebRequest http://localhost:8000/health -UseBasicParsing
 API docs: `http://localhost:8000/docs`  
 Dashboard: `http://localhost:8501`
 
-Detailed operations guide (FastAPI, Streamlit, Grafana):
-- `docs/ui_and_monitoring_runbook.md`
-
 ---
 
 ## 📅 Weekly Workflow
@@ -360,18 +364,18 @@ ELSE keep champion and request iteration
 
 **Option 1: Using pure Python (Virtual Environment)**
 ```powershell
-# Bật Terminal 1 (Chạy API)
+# Terminal 1 (API Run)
 .venv\Scripts\activate
 $env:PYTHONPATH='src'
 uvicorn fraud_detection.api.main:app --reload --port 8000
 
-# Bật Terminal 2 (Chạy Streamlit Dashboard)
+# Terminal 2 (Streamlit Run)
 .venv\Scripts\activate
 $env:PYTHONPATH='src'
 streamlit run streamlit_app/app.py
 ```
-* Truy cập API Docs: `http://localhost:8000/docs`
-* Truy cập Dashboard: `http://localhost:8501`
+* Access API Docs: `http://localhost:8000/docs`
+* Access Dashboard: `http://localhost:8501`
 
 **Option 2: Using Docker Compose**
 *(Requires Docker Desktop to be running)*
@@ -415,7 +419,7 @@ kubectl port-forward svc/streamlit-service 8501:8501
 minikube start
 kubectl apply -f deployment/k8s/
 kubectl get pods
-# Lấy URL kết nối API (NodePort)
+# Get URL Connect to API (NodePort)
 minikube service fraud-api-service --url
 ```
 
@@ -527,10 +531,10 @@ Pipeline now performs:
 7. Restart and verify rollout for API, MLflow, Streamlit.
 
 Required GitHub Secrets:
-- `GDRIVE_CREDENTIALS_DATA`
+- `DAGSHUB_TOKEN`
+- `DAGSHUB_USERNAME`
 - `DOCKERHUB_USERNAME`
 - `DOCKERHUB_TOKEN`
-- `KUBECONFIG` (raw kubeconfig YAML or base64)
 
 #### 8) Quick troubleshooting (Week 14)
 1. API starts but model not loaded:
