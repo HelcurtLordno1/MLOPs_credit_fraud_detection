@@ -24,11 +24,11 @@
       "id": 1,
       "targets": [
         {
-          "expr": "sum(rate(fraud_api_requests_total[5m])) by (path)",
+          "expr": "sum(fraud_api_predictions_total) by (outcome)",
           "refId": "A"
         }
       ],
-      "title": "Requests per Path",
+      "title": "Predictions per Outcome",
       "type": "timeseries"
     },
     {
@@ -51,11 +51,11 @@
       "id": 2,
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum(rate(fraud_api_request_latency_seconds_bucket[5m])) by (le, path))",
+          "expr": "histogram_quantile(0.95, sum(fraud_api_prediction_latency_seconds_bucket) by (le))",
           "refId": "A"
         }
       ],
-      "title": "P95 Request Latency",
+      "title": "P95 Prediction Latency",
       "type": "timeseries"
     }
   ],
@@ -70,9 +70,10 @@
     "list": []
   },
   "time": {
-    "from": "now-15m",
+    "from": "now-1h",
     "to": "now"
   },
+  "uid": "fraud-api-dashboard",
   "title": "Fraud API Dashboard",
   "version": 1
 }

@@ -6,6 +6,8 @@ Fraud Detection dataset (fraudTrain.csv / fraudTest.csv).
 
 from __future__ import annotations
 
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -58,8 +60,8 @@ class HealthResponse(BaseModel):
 
     status: str = Field(..., description="Service status (ok / degraded)")
     model_loaded: bool = Field(..., description="Whether a model is loaded")
-    model_name: str | None = Field(None, description="Name of loaded model")
-    version: str | None = Field(None, description="Model version")
+    model_name: Optional[str] = Field(None, description="Name of loaded model")
+    version: Optional[str] = Field(None, description="Model version")
 
 
 class ModelInfoResponse(BaseModel):
@@ -69,4 +71,4 @@ class ModelInfoResponse(BaseModel):
     version: str
     threshold: float
     feature_count: int
-    trained_at: str | None = None
+    trained_at: Optional[str] = None

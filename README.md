@@ -272,6 +272,9 @@ Invoke-WebRequest http://localhost:8000/health -UseBasicParsing
 API docs: `http://localhost:8000/docs`  
 Dashboard: `http://localhost:8501`
 
+Detailed operations guide (FastAPI, Streamlit, Grafana):
+- `docs/ui_and_monitoring_runbook.md`
+
 ---
 
 ## 📅 Weekly Workflow
