@@ -35,7 +35,7 @@ This structure ensures teammates can work in parallel while still sharing one re
 - **Total records**: approximately 1.11M transactions.
 - **Fraud prevalence**: approximately 0.58% (highly imbalanced binary target).
 - **Target column**: `is_fraud`.
-- **Engineering scope**: 23 engineered features spanning temporal behavior, customer velocity, merchant risk, category trends, geographic distance, and amount anomalies.
+- **Engineering scope**: 21 engineered features spanning temporal behavior, customer velocity, merchant risk, category trends, geographic distance, and amount anomalies.
 - **Split strategy**: stratified train/validation/test split (60/10/30) to preserve minority-class ratio.
 
 Imbalance handling in training:
@@ -247,7 +247,6 @@ python -m dvc status
 ### 3) Verify quality gates and reproducibility
 ```powershell
 pytest -q
-python verify_setup.py
 python -m fraud_detection.cli paths
 ```
 
@@ -334,12 +333,13 @@ Dashboard: `http://localhost:8501`
 
 **Promotion criteria**:
 ```text
-IF (challenger_auprc >= champion_auprc) AND
-   (challenger_recall >= champion_recall) AND
+IF (challenger_recall >= champion_recall) AND
    (challenger_precision >= champion_precision * 0.95)
 THEN promote challenger
 ELSE keep champion and request iteration
 ```
+
+AUPRC is used during model selection in training, but the promotion gate itself only checks recall and precision.
 
 **Expected Week 12 artifacts**:
 - `reports/metrics/test_metrics.json`
